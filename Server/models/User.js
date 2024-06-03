@@ -1,4 +1,3 @@
-// models/User.js
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
@@ -15,6 +14,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    match: /^admin_[a-zA-Z]+\d+$/, // regex to enforce pattern
   },
   password: {
     type: String,
