@@ -1,22 +1,53 @@
-// src/App.js
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../style.css';
 import logo from '../img/coachifylogo.png';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-function Login({ hideCreateAccountButton = false }) {  // Add hideCreateAccountButton prop
+function Login({ hideCreateAccountButton = false }) {
   const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    username: '',
+    password: ''
+  });
   const navigate = useNavigate();
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
   };
 
-  const handleSubmit = (event) => {
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const backendURL = 'http://localhost:7000'; // Replace with your backend server URL
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Redirect to the home page after form submission
-    navigate('./home');
+    const { name, email, username, password } = formData;
+
+    try {
+      if (isLogin) {
+        const response = await axios.post(`${backendURL}/api/auth/login`, { username, password });
+        console.log('Login response:', response.data);
+        localStorage.setItem('token', response.data.token);
+      } else {
+        const response = await axios.post(`${backendURL}/api/auth/register`, { name, email, username, password });
+        console.log('Registration response:', response.data);
+        localStorage.setItem('token', response.data.token);
+      }
+      // Redirect to the home page after form submission
+      navigate('/admin/home'); // Ensure the route is correctly specified
+    } catch (error) {
+      console.error('Error response:', error.response); // Log the error response
+      alert(error.response?.data.msg || 'Server error');
+    }
   };
 
   return (
@@ -49,7 +80,7 @@ function Login({ hideCreateAccountButton = false }) {  // Add hideCreateAccountB
                         <label htmlFor="yourName" className="form-label">
                           Your Name
                         </label>
-                        <input type="text" name="name" className="form-control" id="yourName" required />
+                        <input type="text" name="name" className="form-control" id="yourName" required onChange={handleChange} />
                         <div className="invalid-feedback">Please, enter your name!</div>
                       </div>
                     )}
@@ -58,7 +89,7 @@ function Login({ hideCreateAccountButton = false }) {  // Add hideCreateAccountB
                         <label htmlFor="yourEmail" className="form-label">
                           Your Email
                         </label>
-                        <input type="email" name="email" className="form-control" id="yourEmail" required />
+                        <input type="email" name="email" className="form-control" id="yourEmail" required onChange={handleChange} />
                         <div className="invalid-feedback">Please enter a valid Email address!</div>
                       </div>
                     )}
@@ -70,7 +101,7 @@ function Login({ hideCreateAccountButton = false }) {  // Add hideCreateAccountB
                         <span className="input-group-text" id="inputGroupPrepend">
                           @
                         </span>
-                        <input type="text" name="username" className="form-control" id="yourUsername" required />
+                        <input type="text" name="username" className="form-control" id="yourUsername" required onChange={handleChange} />
                         <div className="invalid-feedback">Please enter your username.</div>
                       </div>
                     </div>
@@ -78,7 +109,7 @@ function Login({ hideCreateAccountButton = false }) {  // Add hideCreateAccountB
                       <label htmlFor="yourPassword" className="form-label">
                         Password
                       </label>
-                      <input type="password" name="password" className="form-control" id="yourPassword" required />
+                      <input type="password" name="password" className="form-control" id="yourPassword" required onChange={handleChange} />
                       <div className="invalid-feedback">Please enter your password!</div>
                     </div>
                     {!isLogin && (

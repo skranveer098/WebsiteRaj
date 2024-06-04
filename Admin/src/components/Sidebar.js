@@ -18,11 +18,11 @@ const initialNavItems = [
     label: 'Batches',
     id: 'components-nav',
     children: [
-      { href: '/BatchDetail', label: 'Batch A', description: 'Top-performing students' },
-      { href: '/BatchDetail', label: 'Batch B', description: 'High commitment students' },
-      { href: '/BatchDetail', label: 'Batch C', description: 'Advanced coursework students' },
-      { href: '/BatchDetail', label: 'Batch D', description: 'Specialized attention students' },
-      { href: '/BatchDetail', label: 'Batch E', description: 'Accelerated learning opportunities' },
+      // { href: '/BatchDetail', label: 'Batch A', description: 'Top-performing students' },
+      // { href: '/BatchDetail', label: 'Batch B', description: 'High commitment students' },
+      // { href: '/BatchDetail', label: 'Batch C', description: 'Advanced coursework students' },
+      // { href: '/BatchDetail', label: 'Batch D', description: 'Specialized attention students' },
+      // { href: '/BatchDetail', label: 'Batch E', description: 'Accelerated learning opportunities' },
     ],
   },
   {

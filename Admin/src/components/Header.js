@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../style.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -8,6 +8,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Ensure Bootstrap JS is in
 
 function Header({ title, showNotifications }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profileName, setProfileName] = useState('');
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -25,6 +26,31 @@ function Header({ title, showNotifications }) {
     { id: 2, title: "Message 2" },
     { id: 3, title: "Message 3" }
   ];
+
+  useEffect(() => {
+       // Fetch the user's profile
+    const fetchProfileName = async () => {
+      try {
+        const response = await fetch('http://localhost:7000/api/profile', {
+          headers: {
+            'x-auth-token': localStorage.getItem('token'), // Assuming you store the token in localStorage
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        setProfileName(data.name); // Assuming the response has a 'name' field
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+      }
+    };
+
+
+    fetchProfileName();
+  }, []);
 
   return (
     <header id="header" className={`header fixed-top d-flex align-items-center ${sidebarOpen ? 'sidebar-open' : ''}`}>
@@ -63,11 +89,11 @@ function Header({ title, showNotifications }) {
               <li className="nav-item dropdown pe-3">
                 <a className="nav-link nav-profile dropdown-toggle d-flex align-items-center pe-0" href="#" id="navbarDropdownProfile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <img src="assets/img/profile-img.jpg" alt="Profile" className="rounded-circle" />
-                  <span className="d-none d-md-block ps-2">Rajni</span>
+                  <span className="d-none d-md-block ps-2">{profileName}</span>
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownProfile">
                   <li className="dropdown-header">
-                    <h6>K. Anderson</h6>
+                    <h6>{profileName}</h6>
                     <span>Web Developer</span>
                   </li>
                   <li><hr className="dropdown-divider" /></li>

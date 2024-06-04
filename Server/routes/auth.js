@@ -1,11 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
 const User = require('../models/User');
 const router = express.Router();
-const bodyParser = require('body-parser');
 
-// Middleware to parse JSON bodies
-router.use(bodyParser.json());
+dotenv.config();
+const JWT_SECRET = process.env.jwt_secret;
 
 // Register
 router.post('/register', async (req, res) => {
@@ -16,12 +17,6 @@ router.post('/register', async (req, res) => {
     let user = await User.findOne({ email: email.toLowerCase() });
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
-    }
-
-    // Validate the username pattern
-    const usernamePattern = /^admin_[a-zA-Z]+\d+$/;
-    if (!usernamePattern.test(username)) {
-      return res.status(400).json({ msg: 'Username must follow the pattern: admin_name12' });
     }
 
     // Encrypt the password
@@ -41,14 +36,6 @@ router.post('/register', async (req, res) => {
     res.json({ msg: 'User registered successfully' });
   } catch (err) {
     console.error(err.message);
-    // Check for validation errors
-    if (err.name === 'ValidationError') {
-      let messages = [];
-      for (field in err.errors) {
-        messages.push(err.errors[field].message);
-      }
-      return res.status(400).json({ msg: messages.join(', ') });
-    }
     res.status(500).send('Server error');
   }
 });
@@ -58,14 +45,8 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Validate the username pattern
-    const usernamePattern = /^admin_[a-zA-Z]+\d+$/;
-    if (!usernamePattern.test(username)) {
-      return res.status(400).json({ msg: 'Invalid Username Pattern' });
-    }
-
     // Find the user by username
-    let user = await User.findOne({ username: username });
+    let user = await User.findOne({ username });
     if (!user) {
       return res.status(400).json({ msg: 'Invalid Credentials' });
     }
@@ -76,7 +57,22 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ msg: 'Invalid Credentials' });
     }
 
-    res.json({ msg: 'Login successful' });
+    // Generate a JWT token
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      JWT_SECRET,
+      { expiresIn: '1h' }, // Token expires in 1 hour
+      (err, token) => {
+        if (err) throw err;
+        res.json({ token }); // Respond with the token
+      }
+    );
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
