@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import BatchForm from '../sidebarSection/BatchForm';
 import EditBatchForm from '../sidebarSection/EditBatchForm';
+import axios from 'axios';
 
 const initialNavItems = [
   {
@@ -17,13 +18,7 @@ const initialNavItems = [
     icon: 'bi bi-menu-button-wide',
     label: 'Batches',
     id: 'components-nav',
-    children: [
-      // { href: '/BatchDetail', label: 'Batch A', description: 'Top-performing students' },
-      // { href: '/BatchDetail', label: 'Batch B', description: 'High commitment students' },
-      // { href: '/BatchDetail', label: 'Batch C', description: 'Advanced coursework students' },
-      // { href: '/BatchDetail', label: 'Batch D', description: 'Specialized attention students' },
-      // { href: '/BatchDetail', label: 'Batch E', description: 'Accelerated learning opportunities' },
-    ],
+    children: [],
   },
   {
     type: 'heading',
@@ -37,20 +32,31 @@ const initialNavItems = [
   },
 ];
 
-
 function Sidebar() {
   const [navItems, setNavItems] = useState(initialNavItems);
   const [showForm, setShowForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [batchToEdit, setBatchToEdit] = useState(null);
 
-  const addBatch = (newBatch) => {
-    setNavItems(prevNavItems => {
-      const updatedNavItems = [...prevNavItems];
-      updatedNavItems[1].children.push(newBatch);
-      return updatedNavItems;
-    });
-    setShowForm(false);
+  const addBatch = async (newBatch) => {
+    try {
+      const token = localStorage.getItem('token'); // Get JWT token from local storage or context
+      const response = await axios.post('http://localhost:7000/api/batches', newBatch, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const savedBatch = response.data.batch;
+
+      setNavItems(prevNavItems => {
+        const updatedNavItems = [...prevNavItems];
+        updatedNavItems[1].children.push(savedBatch);
+        return updatedNavItems;
+      });
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error adding batch', error);
+    }
   };
 
   const editBatch = (updatedBatch) => {

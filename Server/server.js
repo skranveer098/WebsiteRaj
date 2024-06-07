@@ -23,7 +23,8 @@ mongoose.connect(process.env.MONGO_URI  )
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
-// app.use('/api/batch', require('./routes/batch'));
+app.use('/api/batches', require('./routes/batch'));
+// app.use('/api', require('./routes/student'));
 // app.use('/api/protected', require('./routes/protected'));
 
 // Catch-all route for 404

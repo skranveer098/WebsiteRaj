@@ -6,7 +6,7 @@ const User = require('../models/User');
 const router = express.Router();
 
 dotenv.config();
-const JWT_SECRET = process.env.jwt_secret;
+// const JWT_SECRET = process.env.jwt_secret;
 
 // Register
 router.post('/register', async (req, res) => {
@@ -45,37 +45,20 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Find the user by username
-    let user = await User.findOne({ username });
+    const user = await User.findOne({ username });
     if (!user) {
-      return res.status(400).json({ msg: 'Invalid Credentials' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    // Compare the provided password with the stored hashed password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid Credentials' });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid password' });
     }
 
-    // Generate a JWT token
-    const payload = {
-      user: {
-        id: user.id,
-      },
-    };
-
-    jwt.sign(
-      payload,
-      JWT_SECRET,
-      { expiresIn: '1h' }, // Token expires in 1 hour
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token }); // Respond with the token
-      }
-    );
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    const token = jwt.sign({ id: user._id, username: user.username }, process.env.jwt_secret, { expiresIn: '1h' });
+    res.json({ token });
+  } catch (error) {
+    res.status(500).json({ message: 'Error logging in' });
   }
 });
 
