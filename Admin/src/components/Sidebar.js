@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import BatchForm from '../sidebarSection/BatchForm';
 import EditBatchForm from '../sidebarSection/EditBatchForm';
-import axios from 'axios';
 
 const initialNavItems = [
   {
@@ -38,45 +38,74 @@ function Sidebar() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [batchToEdit, setBatchToEdit] = useState(null);
 
-  const addBatch = async (newBatch) => {
-    try {
-      const token = localStorage.getItem('token'); // Get JWT token from local storage or context
-      const response = await axios.post('http://localhost:7000/api/batches', newBatch, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const savedBatch = response.data.batch;
+  useEffect(() => {
+    fetchBatches();
+  }, []);
 
-      setNavItems(prevNavItems => {
+  const fetchBatches = async () => {
+    try {
+      const response = await axios.get('http://localhost:7000/api/batches');
+      const batches = response.data;
+      setNavItems((prevNavItems) => {
         const updatedNavItems = [...prevNavItems];
-        updatedNavItems[1].children.push(savedBatch);
+        updatedNavItems[1].children = batches.map((batch) => ({
+          href: `/BatchDetail/${batch._id}`,
+          label: batch.name,
+          description: batch.description,
+          _id: batch._id,
+        }));
         return updatedNavItems;
       });
-      setShowForm(false);
     } catch (error) {
-      console.error('Error adding batch', error);
+      console.error('Error fetching batches:', error);
     }
   };
 
-  const editBatch = (updatedBatch) => {
-    setNavItems(prevNavItems => {
+  const addBatch = (newBatch) => {
+    setNavItems((prevNavItems) => {
       const updatedNavItems = [...prevNavItems];
-      const batchIndex = updatedNavItems[1].children.findIndex(batch => batch.label === batchToEdit.label);
-      updatedNavItems[1].children[batchIndex] = updatedBatch;
+      updatedNavItems[1].children.push({
+        ...newBatch,
+        href: `/BatchDetail/${newBatch._id}`,
+      });
       return updatedNavItems;
     });
-    setShowEditForm(false);
+    setShowForm(false);
   };
 
-  const removeBatch = (batchLabel) => {
-    setNavItems(prevNavItems => {
-      const updatedNavItems = [...prevNavItems];
-      updatedNavItems[1].children = updatedNavItems[1].children.filter(
-        batch => batch.label !== batchLabel
-      );
-      return updatedNavItems;
-    });
+  const editBatch = async (updatedBatch) => {
+    try {
+      await axios.put(`http://localhost:7000/api/batches/${updatedBatch._id}`, updatedBatch);
+      setNavItems((prevNavItems) => {
+        const updatedNavItems = [...prevNavItems];
+        const batchIndex = updatedNavItems[1].children.findIndex(
+          (batch) => batch._id === updatedBatch._id
+        );
+        updatedNavItems[1].children[batchIndex] = {
+          ...updatedBatch,
+          href: `/BatchDetail/${updatedBatch._id}`,
+        };
+        return updatedNavItems;
+      });
+      setShowEditForm(false);
+    } catch (error) {
+      console.error('Error editing batch:', error);
+    }
+  };
+
+  const removeBatch = async (batchId) => {
+    try {
+      await axios.delete(`http://localhost:7000/api/batches/${batchId}`);
+      setNavItems((prevNavItems) => {
+        const updatedNavItems = [...prevNavItems];
+        updatedNavItems[1].children = updatedNavItems[1].children.filter(
+          (batch) => batch._id !== batchId
+        );
+        return updatedNavItems;
+      });
+    } catch (error) {
+      console.error('Error deleting batch:', error);
+    }
   };
 
   const handleAddBatchClick = () => {
@@ -101,10 +130,10 @@ function Sidebar() {
             return (
               <li className="nav-item" key={index}>
                 {item.href ? (
-                  <a className="nav-link" href={item.href}>
+                  <Link className="nav-link" to={item.href}>
                     <i className={item.icon}></i>
                     <span>{item.label}</span>
-                  </a>
+                  </Link>
                 ) : (
                   <Link className="nav-link collapsed" to={item.to}>
                     <i className={item.icon}></i>
@@ -123,6 +152,7 @@ function Sidebar() {
                   role="button"
                   aria-expanded="false"
                   aria-controls={item.id}
+                  onClick={fetchBatches}
                 >
                   <i className={item.icon}></i>
                   <span>{item.label}</span>
@@ -131,10 +161,10 @@ function Sidebar() {
                 <ul id={item.id} className="nav-content collapse" data-bs-parent="#sidebar-nav">
                   {item.children.map((child, childIndex) => (
                     <li key={childIndex} className="d-flex justify-content-between align-items-center">
-                      <a href={child.href}>
+                      <Link to={`/BatchDetail/${child._id}`}>
                         <i className="bi bi-circle"></i>
                         <span>{child.label}</span>
-                      </a>
+                      </Link>
                       <div>
                         <button
                           className="btn btn-link text-primary"
@@ -144,7 +174,7 @@ function Sidebar() {
                         </button>
                         <button
                           className="btn btn-link text-danger"
-                          onClick={() => removeBatch(child.label)}
+                          onClick={() => removeBatch(child._id)}
                         >
                           <i className="bi bi-trash"></i>
                         </button>
@@ -157,9 +187,7 @@ function Sidebar() {
                     </button>
                   </li>
                 </ul>
-                {showForm && (
-                  <BatchForm onAddBatch={addBatch} onCancel={handleCancel} />
-                )}
+                {showForm && <BatchForm onAddBatch={addBatch} onCancel={handleCancel} />}
                 {showEditForm && batchToEdit && (
                   <EditBatchForm batch={batchToEdit} onEditBatch={editBatch} onCancel={handleCancel} />
                 )}

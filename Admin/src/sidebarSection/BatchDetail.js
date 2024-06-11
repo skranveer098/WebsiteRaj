@@ -1,83 +1,90 @@
 import React, { useState, useEffect } from 'react';
-// import Home from '../Home';
-import StudentDetail from './StudentDetail';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import StudentDetail from './StudentDetail';
 
 const BatchDetail = () => {
-    const [data, setData] = useState([]);
+    const { batchId } = useParams();
+    const [batch, setBatch] = useState({});
+    const [students, setStudents] = useState([]);
     const [search, setSearch] = useState('');
-    const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
+    const [sortField, setSortField] = useState('');
+    const [sortOrder, setSortOrder] = useState('asc');
+    const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [showStudentDetail, setShowStudentDetail] = useState(false);
     const [studentToEdit, setStudentToEdit] = useState(null);
 
     useEffect(() => {
-        // Mock data fetching
-        const fetchData = () => {
-            const initialData = [
-                { firstName: 'Unity',lastName: 'Pugh', enrollmentNo: '9958', emailId: 'rajnisingh9031@gmail.com', password: 'UnityPugh', startDate: '2005/02/11', endDate: '37%' },
-                // Add more mock data here
-            ];
-            setData(initialData);
+        const fetchBatchDetails = async () => {
+            try {
+                const response = await axios.get(`http://localhost:7000/api/batches/${batchId}`);
+                setBatch(response.data);
+            } catch (error) {
+                console.error('Error fetching batch details:', error);
+            }
         };
 
-        fetchData();
-    }, []);
+        const fetchStudents = async () => {
+            try {
+                const response = await axios.get(`http://localhost:7000/api/student/${batchId}`);
+                setStudents(response.data);
+            } catch (error) {
+                console.error('Error fetching students:', error);
+            }
+        };
+
+        fetchBatchDetails();
+        fetchStudents();
+    }, [batchId]);
 
     const handleSearch = (e) => {
         setSearch(e.target.value);
-        setCurrentPage(1);
     };
 
-    const handleSort = (key) => {
-        let direction = 'ascending';
-        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-            direction = 'descending';
-        }
-        setSortConfig({ key, direction });
+    const handleSort = (field) => {
+        const order = sortField === field && sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortField(field);
+        setSortOrder(order);
     };
 
-    const sortedData = [...data].sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-            return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-            return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
+    const sortedData = [...students].sort((a, b) => {
+        if (a[sortField] < b[sortField]) return sortOrder === 'asc' ? -1 : 1;
+        if (a[sortField] > b[sortField]) return sortOrder === 'asc' ? 1 : -1;
         return 0;
     });
 
-    const filteredData = sortedData.filter(item =>
-        Object.values(item).some(val =>
-            val.toString().toLowerCase().includes(search.toLowerCase())
-        )
+    const filteredData = sortedData.filter(student =>
+        student.firstName.toLowerCase().includes(search.toLowerCase())
     );
 
     const indexOfLastRow = currentPage * rowsPerPage;
     const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-    const currentRows = filteredData.slice(indexOfFirstRow, indexOfLastRow);
-
+    const currentRows = rowsPerPage === -1 ? filteredData : filteredData.slice(indexOfFirstRow, indexOfLastRow);
     const totalPages = Math.ceil(filteredData.length / rowsPerPage);
 
-    const handleAddStudentClick = () => {
-        setStudentToEdit(null);
-        setShowStudentDetail(true);
-    };
-
-    const handleCloseStudentDetail = () => {
-        setShowStudentDetail(false);
-    };
-
-    const handleAddStudent = (student) => {
-        if (studentToEdit) {
-            const updatedData = data.map((item) =>
-                item.enrollmentNo === studentToEdit.enrollmentNo ? student : item
+    const renderPageNumbers = () => {
+        const pageNumbers = [];
+        for (let i = 1; i <= totalPages; i++) {
+            pageNumbers.push(
+                <button
+                    key={i}
+                    style={{
+                        padding: '5px 10px',
+                        border: 'none',
+                        backgroundColor: currentPage === i ? '#007bff' : '#ddd',
+                        color: 'white',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.3s ease'
+                    }}
+                    onClick={() => setCurrentPage(i)}
+                >
+                    {i}
+                </button>
             );
-            setData(updatedData);
-        } else {
-            setData([...data, student]);
         }
+        return pageNumbers;
     };
 
     const handleEditStudent = (student) => {
@@ -85,26 +92,43 @@ const BatchDetail = () => {
         setShowStudentDetail(true);
     };
 
-    const handleDeleteStudent = (enrollmentNo) => {
-        const updatedData = data.filter((student) => student.enrollmentNo !== enrollmentNo);
-        setData(updatedData);
+    const handleDeleteStudent = async (enrollmentNo) => {
+        try {
+            await axios.delete(`http://localhost:7000/api/student/${enrollmentNo}`);
+            setStudents(students.filter(student => student.enrollmentNo !== enrollmentNo));
+        } catch (error) {
+            console.error('Error deleting student:', error);
+        }
+    };
+
+    const handleAddStudentClick = () => {
+        setStudentToEdit(null);
+        setShowStudentDetail(true);
+    };
+
+    const handleAddStudent = (newStudent) => {
+        setStudents([...students, newStudent]);
+        setShowStudentDetail(false);
+    };
+
+    const handleCloseStudentDetail = () => {
+        setShowStudentDetail(false);
     };
 
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+            {/* Batch Details */}
             <div style={{ marginBottom: '20px' }}>
                 <div className="pagetitle" style={{ marginBottom: '20px' }}>
-                    <h1>Batch A</h1>
+                    <h1>{batch.name}</h1>
                 </div>
                 <section className="section">
                     <div className="row">
                         <div className="col-lg-12">
                             <div className="card">
                                 <div className="card-body">
-                                    <h5 className="card-title">Batch Details</h5>
-                                    <p>
-                                        Batch A in coaching classes typically consists of top-performing students who excel academically or demonstrate a high level of commitment to their studies. These students often receive specialized attention and advanced coursework, aimed at further challenging and nurturing their abilities. Additionally, Batch A may have access to extra resources or accelerated learning opportunities to enhance their educational experience.
-                                    </p>
+                                    <h5 className="card-title">{batch.name}</h5>
+                                    <p>{batch.description}</p>
                                 </div>
                             </div>
                         </div>
@@ -112,7 +136,8 @@ const BatchDetail = () => {
                 </section>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
+            {/* Search and Sort Bar */}
+            <div className="search-sort-bar" style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <label>
                         <select
@@ -129,14 +154,16 @@ const BatchDetail = () => {
                 </div>
                 <div>
                     <input
-                        style={{ padding: '5px' }}
-                        placeholder="Search..."
-                        type="search"
+                        type="text"
+                        placeholder="Search by First Name"
                         value={search}
                         onChange={handleSearch}
+                        style={{ padding: '5px' }}
                     />
                 </div>
             </div>
+
+            {/* Student Table */}
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
                 <thead>
                     <tr>
@@ -149,14 +176,18 @@ const BatchDetail = () => {
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('enrollmentNo')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Enrollment No.</button>
                         </th>
-                        <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('emailId')}>
-                            <button style={{ all: 'unset', cursor: 'pointer' }}>Email Id</button>
+                        <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('batchName')}>
+    <button style={{ all: 'unset', cursor: 'pointer' }}>Batch Name</button>
+</th>
+
+                        <th style={{ backgroundColor: '#f2f2f2',padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('emailId')}>
+                            <button style={{ all: 'unset', cursor: 'pointer' }}>Email ID</button>
                         </th>
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('password')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Password</button>
                         </th>
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('startDate')}>
-                            <button style={{ all: 'unset', cursor: 'pointer' }}>Joining Date</button>
+                            <button style={{ all: 'unset', cursor: 'pointer' }}>Start Date</button>
                         </th>
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('endDate')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>End Date</button>
@@ -167,23 +198,30 @@ const BatchDetail = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {currentRows.map((row, index) => (
+                    {currentRows.map((student, index) => (
                         <tr key={index} style={{ cursor: 'pointer', transition: 'background-color 0.3s ease' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f1f1'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{row.firstName}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{row.lastName}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{row.enrollmentNo}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{row.emailId}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{row.password}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{row.startDate}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{row.endDate}</td>
+                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.firstName}</td>
+                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.lastName}</td>
+                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.enrollmentNo}</td>
+                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.batchName}</td>
+                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.emailId}</td>
+                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.password}</td>
+                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.startDate}</td>
+                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.endDate}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-around' }}>
-                                <FaEdit onClick={() => handleEditStudent(row)} style={{ cursor: 'pointer', color: '#007bff' }} />
-                                <FaTrash onClick={() => handleDeleteStudent(row.enrollmentNo)} style={{ cursor: 'pointer', color: 'red' }} />
+                                <button onClick={() => handleEditStudent(student)} style={{ all: 'unset', cursor: 'pointer', color: '#007bff' }}>
+                                    <FaEdit />
+                                </button>
+                                <button onClick={() => handleDeleteStudent(student.enrollmentNo)} style={{ all: 'unset', cursor: 'pointer', color: 'red' }}>
+                                    <FaTrash />
+                                </button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            {/* Pagination */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0' }}>
                 <div style={{ fontSize: '14px' }}>
                     Showing {indexOfFirstRow + 1} to {indexOfLastRow} of {filteredData.length} entries
@@ -206,23 +244,7 @@ const BatchDetail = () => {
                                 ‹
                             </button>
                         </li>
-                        {[...Array(totalPages)].map((_, i) => (
-                            <li key={i} style={{ margin: '0 5px' }}>
-                                <button
-                                    style={{
-                                        padding: '5px 10px',
-                                        border: 'none',
-                                        backgroundColor: currentPage === i + 1 ? '#007bff' : '#ddd',
-                                        color: 'white',
-                                        cursor: 'pointer',
-                                        transition: 'background-color 0.3s ease'
-                                    }}
-                                    onClick={() => setCurrentPage(i + 1)}
-                                >
-                                    {i + 1}
-                                </button>
-                            </li>
-                        ))}
+                        {renderPageNumbers()}
                         <li style={{ margin: '0 5px', ...(currentPage === totalPages ? { display: 'none' } : {}) }}>
                             <button
                                 style={{
@@ -242,6 +264,8 @@ const BatchDetail = () => {
                     </ul>
                 </nav>
             </div>
+
+            {/* Add Student Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 0' }}>
                 <button
                     style={{
@@ -257,11 +281,14 @@ const BatchDetail = () => {
                     Add Student
                 </button>
             </div>
+
+            {/* Student Detail Modal */}
             {showStudentDetail && (
                 <StudentDetail
                     onAddStudent={handleAddStudent}
                     onClose={handleCloseStudentDetail}
                     studentToEdit={studentToEdit}
+                    batchId={batchId} // Pass batchId to StudentDetail component
                 />
             )}
         </div>

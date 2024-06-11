@@ -21,7 +21,7 @@ const App = () => {
         <Route path="/admin" element={<Login />} />
         <Route path="/admin/home" element={<Home />} />
         <Route path="/ProfilePage" element={<ProfilePage />} />
-        <Route path="/BatchDetail" element={<BatchDetail />} />
+         <Route path="/BatchDetail/:batchId" element={<BatchDetail />} />{" "}
       </Routes>
   );
 }
