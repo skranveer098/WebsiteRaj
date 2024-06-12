@@ -96,14 +96,16 @@ const BatchDetail = () => {
         setShowStudentDetail(true);
     };
 
-    const handleDeleteStudent = async (enrollmentNo) => {
-        try {
-            await axios.delete(`http://localhost:7000/api/student/${enrollmentNo}`);
-            setStudents(students.filter(student => student.enrollmentNo !== enrollmentNo));
-        } catch (error) {
-            console.error('Error deleting student:', error);
-        }
-    };
+const handleDeleteStudent = async (enrollmentNo, setStudents) => {
+    try {
+        await axios.delete(`http://localhost:7000/api/student/enrollmentNo/${enrollmentNo}`);
+        setStudents(prevStudents => prevStudents.filter(student => student.enrollmentNo !== enrollmentNo));
+        // alert('Student deleted successfully');
+    } catch (error) {
+        console.error('Error deleting student:', error);
+        alert('An error occurred while deleting the student. Please try again.');
+    }
+};
 
     const handleAddStudentClick = () => {
         setStudentToEdit(null);
@@ -228,9 +230,9 @@ const BatchDetail = () => {
                                 <button onClick={() => handleEditStudent(student)} style={{ all: 'unset', cursor: 'pointer', color: '#007bff' }}>
                                     <FaEdit />
                                 </button>
-                                <button onClick={() => handleDeleteStudent(student.enrollmentNo)} style={{ all: 'unset', cursor: 'pointer', color: 'red' }}>
-                                    <FaTrash />
-                                </button>
+                                <button onClick={() => handleDeleteStudent(student.enrollmentNo, setStudents)} style={{ all: 'unset', cursor: 'pointer', color: 'red' }}>
+    <FaTrash />
+</button>
                             </td>
                         </tr>
                     ))}

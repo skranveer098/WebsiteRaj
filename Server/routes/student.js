@@ -126,56 +126,80 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { firstName, lastName, enrollmentNo, emailId, password, startDate, endDate, batchId } = req.body;
-    const student = await Student.findByIdAndUpdate(
-      req.params.id,
-      {
-        firstName,
-        lastName,
-        enrollmentNo,
-        emailId,
-        password,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        batchId
-      },
-      { new: true, runValidators: true }
-    ).populate('batchId');
+    const student = await Student.findById(req.params.id);
+
     if (!student) {
       return res.status(404).send('Student not found');
     }
 
-    await sendEmail(
-      emailId, // Send email to the student's email address
-      'Your details have been updated',
-      `Hello ${firstName},\n\nYour student details have been updated.`,
-      `<p>Hello ${firstName},</p><p>Your student details have been updated.</p>`
-    );
+    // Update student fields
+    student.firstName = firstName;
+    student.lastName = lastName;
+    student.enrollmentNo = enrollmentNo;
+    student.emailId = emailId;
+    student.password = password;
+    student.startDate = new Date(startDate);
+    student.endDate = new Date(endDate);
+    student.batchId = batchId;
+
+    // Save the updated student
+    await student.save();
+
+    // Update the batch with the new student ID if batchId is changed
+    if (student.batchId.toString() !== batchId.toString()) {
+      await Batch.findByIdAndUpdate(
+        student.batchId,
+        { $pull: { object: student._id } },
+        { new: true, runValidators: true }
+      );
+      await Batch.findByIdAndUpdate(
+        batchId,
+        { $addToSet: { object: student._id } },
+        { new: true, runValidators: true }
+      );
+    }
 
     res.status(200).send(student);
   } catch (err) {
+    console.error('Error updating student:', err);
     res.status(400).send(err);
   }
 });
 
+
 // Delete a student
-router.delete('/:id', async (req, res) => {
-  try {
-    const student = await Student.findByIdAndDelete(req.params.id).populate('batchId');
-    if (!student) {
-      return res.status(404).send('Student not found');
+router.delete('/enrollmentNo/:enrollmentNo', async (req, res) => {
+    const { enrollmentNo } = req.params;
+    try {
+        // Find and delete the student by enrollmentNo
+        const student = await Student.findOneAndDelete({ enrollmentNo });
+
+        if (!student) {
+            return res.status(404).send('Student not found');
+        }
+
+        // Remove the student ID from the batch's object array
+        await Batch.findByIdAndUpdate(
+            student.batchId,
+            { $pull: { object: student._id } },
+            { new: true, runValidators: true }
+        );
+
+        // Optionally, send an email to the student about the deletion
+        // await sendEmail(
+        //     student.emailId,
+        //     'Your enrollment has been removed',
+        //     `Hello ${student.firstName},\n\nYour enrollment in the batch has been removed.`,
+        //     `<p>Hello ${student.firstName},</p><p>Your enrollment in the batch has been removed.</p>`
+        // );
+
+        res.status(200).send('Student deleted');
+    } catch (err) {
+        console.error('Error deleting student:', err);
+        res.status(500).send(err);
     }
-
-    await sendEmail(
-      student.emailId, // Send email to the student's email address
-      'Your enrollment has been removed',
-      `Hello ${student.firstName},\n\nYour enrollment in the batch has been removed.`,
-      `<p>Hello ${student.firstName},</p><p>Your enrollment in the batch has been removed.</p>`
-    );
-
-    res.status(200).send('Student deleted');
-  } catch (err) {
-    res.status(500).send(err);
-  }
 });
+
+
 
 module.exports = router;

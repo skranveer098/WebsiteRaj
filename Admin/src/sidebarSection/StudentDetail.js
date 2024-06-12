@@ -27,28 +27,28 @@ const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
         }));
     };
 
-    const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
         e.preventDefault();
-        if (studentToEdit) {
-            try {
-                await axios.put(`http://localhost:7000/api/student/${studentToEdit.enrollmentNo}`, student);
-                onAddStudent(student);
-                onClose();
-                window.location.reload();
-            } catch (error) {
-                console.error('Error updating student:', error);
-            }
-        } else {
-            try {
+
+        try {
+            if (studentToEdit) {
+                // Edit student
+                await axios.put(`http://localhost:7000/api/student/${studentToEdit._id}`, student);
+                setStudent(prevStudents => prevStudents.map(s => s._id === studentToEdit._id ? student : s));
+                window.location.reload()
+            } else {
+                // Add new student
                 const response = await axios.post(`http://localhost:7000/api/student`, student);
                 onAddStudent(response.data);
-                onClose();
-                window.location.reload();
-            } catch (error) {
-                console.error('Error adding student:', error);
             }
+
+            // Close the form
+            onClose();
+        } catch (error) {
+            console.error('Error submitting form:', error);
         }
     };
+
 
     return (
         <div className="student-detail-modal" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
