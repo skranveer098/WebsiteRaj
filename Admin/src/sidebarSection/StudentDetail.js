@@ -33,6 +33,8 @@ const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
             try {
                 await axios.put(`http://localhost:7000/api/student/${studentToEdit.enrollmentNo}`, student);
                 onAddStudent(student);
+                onClose();
+                window.location.reload();
             } catch (error) {
                 console.error('Error updating student:', error);
             }
@@ -40,6 +42,8 @@ const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
             try {
                 const response = await axios.post(`http://localhost:7000/api/student`, student);
                 onAddStudent(response.data);
+                onClose();
+                window.location.reload();
             } catch (error) {
                 console.error('Error adding student:', error);
             }

@@ -7,7 +7,7 @@ router.post('/', async (req, res) => {
   try {
     console.log('Request body:', req.body);
     const { name, description } = req.body;
-    const batch = await new  Batch({ name, description }).save();
+    const batch = await new  Batch({ name, description, object:[]}).save();
     res.status(201).send(batch);
   } catch (err) {
     console.error('Error creating batch:', err.message);
@@ -23,6 +23,19 @@ router.get('/', async (req, res) => {
     res.status(200).send(batches);
   } catch (err) {
     res.status(500).send(err);
+  }
+});
+
+router.post('/getObjectId', async (req, res) => {
+  const newBatch = req.body;
+
+  try {
+    const result = await db.collection('batches').insertOne(newBatch);
+
+    res.status(200).json({ _id: result.insertedId });
+    client.close();
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch object ID' });
   }
 });
 

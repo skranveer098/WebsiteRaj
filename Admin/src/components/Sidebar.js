@@ -61,17 +61,40 @@ function Sidebar() {
     }
   };
 
-  const addBatch = (newBatch) => {
+const addBatch = async (newBatch) => {
+  try {
+    // Make an asynchronous request to fetch the ID from MongoDB
+    const response = await fetch('/api/getObjectId', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newBatch),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch object ID');
+    }
+
+    const data = await response.json();
+    const objectId = data._id;
+
+    // Update the state with the new batch and fetched object ID
     setNavItems((prevNavItems) => {
       const updatedNavItems = [...prevNavItems];
       updatedNavItems[1].children.push({
         ...newBatch,
-        href: `/BatchDetail/${newBatch._id}`,
+        href: `/BatchDetail/${objectId}`,
       });
       return updatedNavItems;
     });
+
     setShowForm(false);
-  };
+  } catch (error) {
+    console.error('Error adding batch:', error);
+    // Handle error, possibly by showing an error message to the user
+  }
+};
 
   const editBatch = async (updatedBatch) => {
     try {

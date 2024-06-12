@@ -17,19 +17,23 @@ const BatchDetail = () => {
     const [studentToEdit, setStudentToEdit] = useState(null);
 
     useEffect(() => {
+        // Fetch batch details
         const fetchBatchDetails = async () => {
             try {
                 const response = await axios.get(`http://localhost:7000/api/batches/${batchId}`);
+                console.log(response.data);
                 setBatch(response.data);
             } catch (error) {
                 console.error('Error fetching batch details:', error);
             }
         };
 
+        // Fetch students in the batch
         const fetchStudents = async () => {
             try {
-                const response = await axios.get(`http://localhost:7000/api/student/${batchId}`);
+                const response = await axios.get(`http://localhost:7000/api/student/${batchId}/students`);
                 setStudents(response.data);
+                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching students:', error);
             }
@@ -106,10 +110,22 @@ const BatchDetail = () => {
         setShowStudentDetail(true);
     };
 
-    const handleAddStudent = (newStudent) => {
-        setStudents([...students, newStudent]);
+   const handleAddStudent = async (newStudent) => {
+    try {
+        // Assuming you have an API endpoint to add a new student
+        // Make sure to replace 'http://localhost:7000/api/students' with your actual endpoint
+        const response = await axios.post('http://localhost:7000/api/student', newStudent);
+        // Assuming the response contains the newly added student with an updated ID or other properties
+        const addedStudent = response.data;
+        setStudents([...students, addedStudent]);
         setShowStudentDetail(false);
-    };
+        setSearch(''); // Reset search to show the newly added student
+    } catch (error) {
+        console.error('Error adding student:', error);
+        // Optionally, show an error message to the user
+    }
+};
+
 
     const handleCloseStudentDetail = () => {
         setShowStudentDetail(false);
@@ -176,9 +192,9 @@ const BatchDetail = () => {
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('enrollmentNo')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Enrollment No.</button>
                         </th>
-                        <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('batchName')}>
+                        {/* <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('batchName')}>
     <button style={{ all: 'unset', cursor: 'pointer' }}>Batch Name</button>
-</th>
+</th> */}
 
                         <th style={{ backgroundColor: '#f2f2f2',padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('emailId')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Email ID</button>
@@ -288,7 +304,7 @@ const BatchDetail = () => {
                     onAddStudent={handleAddStudent}
                     onClose={handleCloseStudentDetail}
                     studentToEdit={studentToEdit}
-                    batchId={batchId} // Pass batchId to StudentDetail component
+                    batchId={batchId} 
                 />
             )}
         </div>

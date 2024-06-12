@@ -1,6 +1,7 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const Student = require('../models/Student');
+const Batch = require('../models/Batch')
 const router = express.Router();
 const dotenv = require('dotenv');
 
@@ -24,7 +25,12 @@ router.post('/', async (req, res) => {
     });
 
     await student.save();
-
+const batch = await Batch.findByIdAndUpdate(
+      batchId,
+      { $addToSet: { object: student._id } }, // Using $addToSet to avoid duplicates
+      { new: true, runValidators: true }
+    );
+    console.log(batch);
     // Log the email user (for debugging purposes, avoid logging the password)
     console.log('EMAIL_USER:', process.env.EMAIL_USER);
 
@@ -73,12 +79,33 @@ router.post('/', async (req, res) => {
 
  
 // Get all students
-router.get('/', async (req, res) => {
+router.get('/:id/students', async (req, res) => {
   try {
-    const students = await Student.find().populate('batchId');
-    res.status(200).send(students);
+    const batchId = req.params.id;
+
+    // Find the batch document
+    const batch = await Batch.findById(batchId);
+
+    if (!batch) {
+      return res.status(404).send({ error: 'Batch not found' });
+    }
+
+    // Initialize an array to hold student details
+    const studentDetails = [];
+
+    // Loop through the object array to get each student's details
+    for (const studentId of batch.object) {
+      const student = await Student.findById(studentId);
+      if (student) {
+        studentDetails.push(student);
+      }
+    }
+
+    // Send the array of student details
+    res.status(200).send(studentDetails);
   } catch (err) {
-    res.status(500).send(err);
+    console.error('Error fetching students for batch:', err.message);
+    res.status(500).send({ error: err.message });
   }
 });
 
