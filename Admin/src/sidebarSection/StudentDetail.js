@@ -40,6 +40,7 @@ const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
                 // Add new student
                 const response = await axios.post(`http://localhost:7000/api/student`, student);
                 onAddStudent(response.data);
+                window.location.reload(false);
             }
 
             // Close the form

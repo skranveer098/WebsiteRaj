@@ -71,6 +71,7 @@ const addBatch = async (newBatch) => {
       },
       body: JSON.stringify(newBatch),
     });
+    window.location.reload(false);
 
     if (!response.ok) {
       throw new Error('Failed to fetch object ID');
@@ -108,6 +109,7 @@ const addBatch = async (newBatch) => {
           ...updatedBatch,
           href: `/BatchDetail/${updatedBatch._id}`,
         };
+        window.location.reload(false);
         return updatedNavItems;
       });
       setShowEditForm(false);

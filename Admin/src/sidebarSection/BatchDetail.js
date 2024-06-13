@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+// const history = useHistory();
 import StudentDetail from './StudentDetail';
 
 const BatchDetail = () => {
@@ -27,6 +28,11 @@ const BatchDetail = () => {
                 console.error('Error fetching batch details:', error);
             }
         };
+
+//         const handleScheduleClick = () => {
+//     history.push('/schedule'); // Redirect to the schedule page
+// };
+
 
         // Fetch students in the batch
         const fetchStudents = async () => {
@@ -121,6 +127,7 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
         const addedStudent = response.data;
         setStudents([...students, addedStudent]);
         setShowStudentDetail(false);
+        window.location.reload();
         setSearch(''); // Reset search to show the newly added student
     } catch (error) {
         console.error('Error adding student:', error);
@@ -140,6 +147,22 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                 <div className="pagetitle" style={{ marginBottom: '20px' }}>
                     <h1>{batch.name}</h1>
                 </div>
+                                  <div style={{ position: 'fixed', top: '20px', right: '20px' }}>
+    <button
+        style={{
+            padding: '10px 20px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer',
+            borderRadius: '5px'
+        }}
+        // onClick={handleScheduleClick} // Call the function on button click
+    >
+        Schedule
+    </button>
+</div>
+
                 <section className="section">
                     <div className="row">
                         <div className="col-lg-12">
@@ -151,6 +174,7 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                             </div>
                         </div>
                     </div>
+                    
                 </section>
             </div>
 
@@ -285,6 +309,7 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
 
             {/* Add Student Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 0' }}>
+
                 <button
                     style={{
                         padding: '10px 20px',
