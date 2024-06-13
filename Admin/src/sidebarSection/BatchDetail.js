@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+// const history = useHistory();
 import StudentDetail from './StudentDetail';
 
 const BatchDetail = () => {
@@ -27,6 +28,11 @@ const BatchDetail = () => {
                 console.error('Error fetching batch details:', error);
             }
         };
+
+//         const handleScheduleClick = () => {
+//     history.push('/schedule'); // Redirect to the schedule page
+// };
+
 
         // Fetch students in the batch
         const fetchStudents = async () => {
@@ -96,14 +102,16 @@ const BatchDetail = () => {
         setShowStudentDetail(true);
     };
 
-    const handleDeleteStudent = async (enrollmentNo) => {
-        try {
-            await axios.delete(`http://localhost:7000/api/student/${enrollmentNo}`);
-            setStudents(students.filter(student => student.enrollmentNo !== enrollmentNo));
-        } catch (error) {
-            console.error('Error deleting student:', error);
-        }
-    };
+const handleDeleteStudent = async (enrollmentNo, setStudents) => {
+    try {
+        await axios.delete(`http://localhost:7000/api/student/enrollmentNo/${enrollmentNo}`);
+        setStudents(prevStudents => prevStudents.filter(student => student.enrollmentNo !== enrollmentNo));
+        // alert('Student deleted successfully');
+    } catch (error) {
+        console.error('Error deleting student:', error);
+        alert('An error occurred while deleting the student. Please try again.');
+    }
+};
 
     const handleAddStudentClick = () => {
         setStudentToEdit(null);
@@ -119,6 +127,7 @@ const BatchDetail = () => {
         const addedStudent = response.data;
         setStudents([...students, addedStudent]);
         setShowStudentDetail(false);
+        window.location.reload();
         setSearch(''); // Reset search to show the newly added student
     } catch (error) {
         console.error('Error adding student:', error);
@@ -138,6 +147,22 @@ const BatchDetail = () => {
                 <div className="pagetitle" style={{ marginBottom: '20px' }}>
                     <h1>{batch.name}</h1>
                 </div>
+                                  <div style={{ position: 'fixed', top: '20px', right: '20px' }}>
+    <button
+        style={{
+            padding: '10px 20px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer',
+            borderRadius: '5px'
+        }}
+        // onClick={handleScheduleClick} // Call the function on button click
+    >
+        Schedule
+    </button>
+</div>
+
                 <section className="section">
                     <div className="row">
                         <div className="col-lg-12">
@@ -149,6 +174,7 @@ const BatchDetail = () => {
                             </div>
                         </div>
                     </div>
+                    
                 </section>
             </div>
 
@@ -228,9 +254,9 @@ const BatchDetail = () => {
                                 <button onClick={() => handleEditStudent(student)} style={{ all: 'unset', cursor: 'pointer', color: '#007bff' }}>
                                     <FaEdit />
                                 </button>
-                                <button onClick={() => handleDeleteStudent(student.enrollmentNo)} style={{ all: 'unset', cursor: 'pointer', color: 'red' }}>
-                                    <FaTrash />
-                                </button>
+                                <button onClick={() => handleDeleteStudent(student.enrollmentNo, setStudents)} style={{ all: 'unset', cursor: 'pointer', color: 'red' }}>
+    <FaTrash />
+</button>
                             </td>
                         </tr>
                     ))}
@@ -283,6 +309,7 @@ const BatchDetail = () => {
 
             {/* Add Student Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 0' }}>
+
                 <button
                     style={{
                         padding: '10px 20px',
