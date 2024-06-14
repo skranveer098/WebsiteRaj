@@ -11,6 +11,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import StudentLogin from './Student/StudentLogin';
 import StudentHome from './Student/StudentHome';
+import ScheduleHome from './Scheduler/SchedulerHome';
 
 const App = () => {
   return (
@@ -21,7 +22,8 @@ const App = () => {
         <Route path="/admin" element={<Login />} />
         <Route path="/admin/home" element={<Home />} />
         <Route path="/ProfilePage" element={<ProfilePage />} />
-         <Route path="/BatchDetail/:batchId" element={<BatchDetail />} />{" "}
+      <Route path="/BatchDetail/:batchId" element={<BatchDetail />} />{" "}
+      <Route path="/schedule/:batchId" element={<ScheduleHome />}/>
       </Routes>
   );
 }
