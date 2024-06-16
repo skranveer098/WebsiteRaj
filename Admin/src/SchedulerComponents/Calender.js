@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { DateContext } from './DateContext';
 
 const Calendar = () => {
   const [date, setDate] = useState(new Date());
   const [month, setMonth] = useState(date.getMonth());
   const [year, setYear] = useState(date.getFullYear());
   const [selectedDate, setSelectedDate] = useState(null);
+  const { setClickedDate } = useContext(DateContext);
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -145,6 +147,7 @@ const Calendar = () => {
   const handleDateClick = (day) => {
     const clickedDate = new Date(year, month, day);
     setSelectedDate(clickedDate);
+    setClickedDate(clickedDate);
   };
 
   useEffect(() => {
@@ -165,6 +168,12 @@ const Calendar = () => {
         fontFamily: "Poppins, sans-serif",
       }}
     >
+      {selectedDate && (
+        <div style={{ marginBottom: "1rem", textAlign: "center", fontWeight: "800" }}>
+          Selected Date:{" "}
+          {`${selectedDate.getDate()} ${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`}
+        </div>
+      )}
       <header
         style={{
           display: "flex",
@@ -262,12 +271,6 @@ const Calendar = () => {
           {renderCalendar()}
         </ul>
       </section>
-      {selectedDate && (
-        <div style={{ marginTop: "1rem", textAlign: "center", fontWeight: "800"}}>
-          Selected Date:{" "}
-          {`${selectedDate.getDate()} ${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`}
-        </div>
-      )}
     </div>
   );
 };

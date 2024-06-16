@@ -1,13 +1,11 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const Student = require('../models/Student');
-const Batch = require('../models/Batch')
+const Batch = require('../models/Batch');
 const router = express.Router();
 const dotenv = require('dotenv');
 
 dotenv.config();
-
-
 
 // Create a new student
 router.post('/', async (req, res) => {
@@ -25,38 +23,34 @@ router.post('/', async (req, res) => {
     });
 
     await student.save();
-const batch = await Batch.findByIdAndUpdate(
+    const batch = await Batch.findByIdAndUpdate(
       batchId,
-      { $addToSet: { object: student._id } }, // Using $addToSet to avoid duplicates
+      { $addToSet: { object: student._id } },
       { new: true, runValidators: true }
     );
     console.log(batch);
-    // Log the email user (for debugging purposes, avoid logging the password)
     console.log('EMAIL_USER:', process.env.EMAIL_USER);
 
-    // Configure nodemailer transporter
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       host: "smtp.gmail.com",
       port: 465,
-      secure: true,// Use your email service provider
+      secure: true,
       auth: {
-        user: process.env.EMAIL_USER, // Your email address
-        pass: process.env.EMAIL_PASS  // Your email password (or app password if using 2FA)
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
       }
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER, // Sender address
-      to: emailId, // Recipient address
-      subject: 'Welcome to the batch', // Subject line
-      text: `Hello ${firstName},\n\nYou have been successfully enrolled in the batch with ID ${batchId}.`, // Plain text body
-      // html: `<p>Hello ${firstName},</p><p>You have been successfully enrolled in the batch with ID ${batchId}.</p>` // HTML body
+      from: process.env.EMAIL_USER,
+      to: emailId,
+      subject: 'Welcome to the batch',
+      text: `Hello ${firstName},\n\nYou have been successfully enrolled in the batch with ID ${batchId}.`,
     };
 
-    // Send the email
     try {
-      const info = transporter.sendMail(mailOptions);
+      const info = await transporter.sendMail(mailOptions);
       console.log('Email sent:', info.response);
       res.status(200).json({ status: "success", message: "Student saved and email sent successfully", info: info.response });
     } catch (emailError) {
@@ -73,27 +67,16 @@ const batch = await Batch.findByIdAndUpdate(
   }
 });
 
-    // const subject = 'Welcome to the batch';
-    // const text = `Hello ${firstName},\n\nYou have been successfully enrolled in the batch with ID ${batchId}.`;
-    // const html = `<p>Hello ${firstName},</p><p>You have been successfully enrolled in the batch with ID ${batchId}.</p>`;
-
- 
-// Get all students
 router.get('/:id/students', async (req, res) => {
   try {
     const batchId = req.params.id;
-
-    // Find the batch document
     const batch = await Batch.findById(batchId);
 
     if (!batch) {
       return res.status(404).send({ error: 'Batch not found' });
     }
 
-    // Initialize an array to hold student details
     const studentDetails = [];
-
-    // Loop through the object array to get each student's details
     for (const studentId of batch.object) {
       const student = await Student.findById(studentId);
       if (student) {
@@ -101,7 +84,6 @@ router.get('/:id/students', async (req, res) => {
       }
     }
 
-    // Send the array of student details
     res.status(200).send(studentDetails);
   } catch (err) {
     console.error('Error fetching students for batch:', err.message);
@@ -109,7 +91,6 @@ router.get('/:id/students', async (req, res) => {
   }
 });
 
-// Get a student by ID
 router.get('/:id', async (req, res) => {
   try {
     const student = await Student.findById(req.params.id).populate('batchId');
@@ -122,7 +103,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update a student
 router.put('/:id', async (req, res) => {
   try {
     const { firstName, lastName, enrollmentNo, emailId, password, startDate, endDate, batchId } = req.body;
@@ -132,7 +112,6 @@ router.put('/:id', async (req, res) => {
       return res.status(404).send('Student not found');
     }
 
-    // Update student fields
     student.firstName = firstName;
     student.lastName = lastName;
     student.enrollmentNo = enrollmentNo;
@@ -142,10 +121,8 @@ router.put('/:id', async (req, res) => {
     student.endDate = new Date(endDate);
     student.batchId = batchId;
 
-    // Save the updated student
     await student.save();
 
-    // Update the batch with the new student ID if batchId is changed
     if (student.batchId.toString() !== batchId.toString()) {
       await Batch.findByIdAndUpdate(
         student.batchId,
@@ -166,40 +143,203 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-
-// Delete a student
 router.delete('/enrollmentNo/:enrollmentNo', async (req, res) => {
-    const { enrollmentNo } = req.params;
-    try {
-        // Find and delete the student by enrollmentNo
-        const student = await Student.findOneAndDelete({ enrollmentNo });
+  const { enrollmentNo } = req.params;
+  try {
+    const student = await Student.findOneAndDelete({ enrollmentNo });
 
-        if (!student) {
-            return res.status(404).send('Student not found');
-        }
-
-        // Remove the student ID from the batch's object array
-        await Batch.findByIdAndUpdate(
-            student.batchId,
-            { $pull: { object: student._id } },
-            { new: true, runValidators: true }
-        );
-
-        // Optionally, send an email to the student about the deletion
-        // await sendEmail(
-        //     student.emailId,
-        //     'Your enrollment has been removed',
-        //     `Hello ${student.firstName},\n\nYour enrollment in the batch has been removed.`,
-        //     `<p>Hello ${student.firstName},</p><p>Your enrollment in the batch has been removed.</p>`
-        // );
-
-        res.status(200).send('Student deleted');
-    } catch (err) {
-        console.error('Error deleting student:', err);
-        res.status(500).send(err);
+    if (!student) {
+      return res.status(404).send('Student not found');
     }
+
+    await Batch.findByIdAndUpdate(
+      student.batchId,
+      { $pull: { object: student._id } },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).send('Student deleted');
+  } catch (err) {
+    console.error('Error deleting student:', err);
+    res.status(500).send(err);
+  }
 });
 
+// Add or update schedule for a student
+router.post('/:studentId/schedule', async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const schedules = req.body;
 
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    schedules.forEach(schedule => {
+      const { classDate, classes } = schedule;
+      const parsedDate = new Date(classDate);
+      
+      if (isNaN(parsedDate)) {
+        throw new Error("Invalid date format for classDate: ${classDate}");
+      }
+
+      const existingSchedule = student.schedule.find(
+        sch => sch.classDate.toDateString() === parsedDate.toDateString()
+      );
+
+      if (existingSchedule) {
+        existingSchedule.classes = classes;
+      } else {
+        student.schedule.push({ classDate: parsedDate, classes });
+      }
+    });
+
+    await student.save();
+    res.status(200).send(student);
+  } catch (err) {
+    console.error('Error adding/updating schedule:', err);
+    res.status(500).send(err.message);
+  }
+});
+
+// Delete a schedule for a student
+router.delete('/:studentId/schedule/:scheduleId', async (req, res) => {
+  try {
+    const { studentId, scheduleId } = req.params;
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    const scheduleIndex = student.schedule.findIndex(sch => sch._id.toString() === scheduleId);
+    if (scheduleIndex === -1) {
+      return res.status(404).send('Schedule not found');
+    }
+
+    // Remove the schedule from student's schedule array
+    student.schedule.splice(scheduleIndex, 1);
+    await student.save();
+
+    res.status(200).send('Schedule deleted successfully');
+  } catch (err) {
+    console.error('Error deleting schedule:', err);
+    res.status(500).send(err);
+  }
+});
+
+// Delete a particular class for a student on a specific day
+router.delete('/:studentId/schedule/:date/:classId', async (req, res) => {
+  try {
+    const { studentId, date, classId } = req.params;
+    const classDate = new Date(date);
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    const schedule = student.schedule.find(sch => sch.classDate.toDateString() === classDate.toDateString());
+    if (!schedule) {
+      return res.status(404).send('Schedule not found');
+    }
+
+    const classIndex = schedule.classes.findIndex(cls => cls._id.toString() === classId);
+    if (classIndex === -1) {
+      return res.status(404).send('Class not found');
+    }
+
+    // Remove the class from the schedule's classes array
+    schedule.classes.splice(classIndex, 1);
+    await student.save();
+
+    res.status(200).send('Class deleted successfully');
+  } catch (err) {
+    console.error('Error deleting class:', err);
+    res.status(500).send(err);
+  }
+});
+
+// Delete all schedules for a student on a particular day
+router.delete('/:studentId/schedule/:date', async (req, res) => {
+  try {
+    const { studentId, date } = req.params;
+    const classDate = new Date(date);
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    // Filter out schedules that do not match the specified date
+    student.schedule = student.schedule.filter(sch => !sch.classDate || sch.classDate.toDateString() !== classDate.toDateString());
+    await student.save();
+
+    res.status(200).send('Schedules for the specified date deleted successfully');
+  } catch (err) {
+    console.error('Error deleting schedules for date:', err);
+    res.status(500).send(err);
+  }
+});
+
+// Delete all schedules for a student
+router.delete('/:studentId/schedule', async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    // Clear the schedule array
+    student.schedule = [];
+    await student.save();
+
+    res.status(200).send('All schedules deleted successfully');
+  } catch (err) {
+    console.error('Error deleting schedules:', err);
+    res.status(500).send(err);
+  }
+});
+
+router.get('/:studentId/schedule/:date', async (req, res) => {
+  try {
+    const { studentId, date } = req.params;
+    const classDate = new Date(date);
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    const schedule = student.schedule.find(sch => sch.classDate.toDateString() === classDate.toDateString());
+    if (!schedule) {
+      return res.status(404).send('Schedule not found');
+    }
+
+    res.status(200).send(schedule);
+  } catch (err) {
+    console.error('Error fetching schedule:', err);
+    res.status(500).send(err);
+  }
+});
+
+router.get('/:studentId/schedules', async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).send('Student not found');
+    }
+
+    res.status(200).send(student.schedule);
+  } catch (err) {
+    console.error('Error fetching schedules:', err);
+    res.status(500).send(err);
+  }
+});
 
 module.exports = router;
