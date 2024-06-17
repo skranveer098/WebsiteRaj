@@ -4,6 +4,7 @@ const Student = require('../models/Student');
 const Batch = require('../models/Batch');
 const router = express.Router();
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
 dotenv.config();
 
@@ -330,15 +331,25 @@ router.get('/:studentId/schedules', async (req, res) => {
   try {
     const { studentId } = req.params;
 
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      console.log(`Invalid student ID: ${studentId}`);
+      return res.status(400).send('Invalid student ID');
+    }
+
+    console.log(`Fetching schedules for student ID: ${studentId}`);
+
     const student = await Student.findById(studentId);
     if (!student) {
+      console.log(`Student not found for ID: ${studentId}`);
       return res.status(404).send('Student not found');
     }
 
-    res.status(200).send(student.schedule);
+    console.log(`Student found: ${JSON.stringify(student)}`);
+    res.status(200).json(student.schedule);
   } catch (err) {
     console.error('Error fetching schedules:', err);
-    res.status(500).send(err);
+    res.status(500).send('Internal Server Error');
   }
 });
 

@@ -8,9 +8,9 @@ const NotesParent = ({ notes }) => {
                 {notes.map((note, index) => (
                     <CardComponent
                         key={index}
-                        noteTitle={note.noteTitle}
-                        noteDate={note.noteDate}
-                        noteContent={note.noteContent}
+                        noteTitle={note.topic}
+                        noteDate={note.time}
+                        noteContent={note.professor}
                     />
                 ))}
             </div>
