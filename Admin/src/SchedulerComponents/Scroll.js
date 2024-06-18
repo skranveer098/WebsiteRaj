@@ -9,7 +9,7 @@ function SideScroll() {
   const { batchId } = useParams();
   const { clickedDate } = useContext(DateContext);
   const [notes, setNotes] = useState([]);
-  const [modalType, setModalType] = useState(null);
+  const [modalType, setModalType] = useState(false);
   const [selectedNoteIndex, setSelectedNoteIndex] = useState(null);
 
   const [newNote, setNewNote] = useState({
@@ -27,8 +27,8 @@ function SideScroll() {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const response = await axios.get(`http://localhost:7000/api/batches/${batchId}/classes/${clickedDate}`);
-        setNotes(response.data);
+        const response = await axios.get(`http://localhost:7000/api/batches/${batchId}/schedule/${clickedDate}`);
+        setNotes(response.data.classes);
       } catch (error) {
         console.error('Error fetching notes:', error);
       }
@@ -68,7 +68,6 @@ function SideScroll() {
       
       // Update notes for the current clickedDate only
       setNotes([...notes, ...response.data.classes]);
-      setModalType(null);
       setNewNote({
         topic: "",
         time: "",
@@ -78,6 +77,8 @@ function SideScroll() {
     } catch (error) {
       console.error('Error adding note:', error);
     }
+    setModalType(false);
+    window.location.reload();
   };
 
   const handleDeleteNote = async () => {
@@ -171,7 +172,7 @@ function SideScroll() {
           <input type="text" placeholder="Topic" value={newNote.topic} onChange={(e) => setNewNote({ ...newNote, topic: e.target.value })} style={{ width: '100%', padding: '10px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '5px' }} />
           <input type="text" placeholder="Time" value={newNote.time} onChange={(e) => setNewNote({ ...newNote, time: e.target.value })} style={{ width: '100%', padding: '10px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '5px' }} />
           <textarea placeholder="Professor" value={newNote.professor} onChange={(e) => setNewNote({ ...newNote, professor: e.target.value })} style={{ width: '100%', padding: '10px', marginBottom: '15px', border: '1px solid #ccc', borderRadius: '5px' }} />
-          <button type='button' onClick={handleAddNote} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', transition: 'background-color 0.3s ease' }}>Add</button>
+          <button onClick={handleAddNote} style={{ padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', transition: 'background-color 0.3s ease' }}>Add</button>
         </div>
       )}
 
@@ -210,4 +211,3 @@ function SideScroll() {
 }
 
 export default SideScroll;
-

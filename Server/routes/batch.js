@@ -176,49 +176,45 @@ router.get('/:batchId/schedules', async (req, res) => {
   }
 });
 
-router.get('/:batchId/classes/:date', async (req, res) => {
+router.get("/:batchId/schedule/:date", async (req, res) => {
   try {
     const { batchId, date } = req.params;
-    const parsedDate = new Date(date);
-
-    // Validate the date format
-    if (isNaN(parsedDate)) {
-      return res.status(400).send('Invalid date format');
-    }
+    const classDate = new Date(date);
 
     const batch = await Batch.findById(batchId);
     if (!batch) {
-      return res.status(404).send('Batch not found');
+      return res.status(404).send("Batch not found");
     }
 
-    const classesByDate = [];
+    let scheduleForSingleStudent = null;
 
-    // Using Promise.all to handle asynchronous operations in parallel
-    await Promise.all(batch.object.map(async (studentId) => {
+    for (const studentId of batch.object) {
       const student = await Student.findById(studentId);
+      if (!student) continue;
 
-      if (student) {
-        // Filter schedules for the given date and include detailed class information
-        const filteredSchedules = student.schedule
-          .filter(sch => sch.classDate && sch.classDate.toDateString() === parsedDate.toDateString())
-          .flatMap(sch => sch.classes.map(cls => ({
-            studentId: student._id,
-            classDate: sch.classDate,
-            topic: cls.topic,
-            time: cls.time,
-            professor: cls.professor,
-            // Include all other details of the class object
-            ...cls
-          })));
+      const studentSchedule = student.schedule.find(
+        (sch) => sch.classDate && sch.classDate.toDateString() === classDate.toDateString()
+      );
 
-        classesByDate.push(...filteredSchedules);
+      if (studentSchedule) {
+        scheduleForSingleStudent = {
+          studentId: student._id,
+          studentName: student.name,
+          classDate: studentSchedule.classDate,
+          classes: studentSchedule.classes,
+        };
+        break; // Exit loop after finding the first match
       }
-    }));
+    }
 
-    res.status(200).json(classesByDate);
+    if (scheduleForSingleStudent) {
+      res.status(200).send(scheduleForSingleStudent);
+    } else {
+      res.status(404).send("No schedule found for the given date in this batch");
+    }
   } catch (err) {
-    console.error('Error fetching classes by date:', err.message);
-    res.status(500).send(err.message);
+    console.error("Error retrieving schedule for date in batch:", err);
+    res.status(500).send(err);
   }
 });
 
