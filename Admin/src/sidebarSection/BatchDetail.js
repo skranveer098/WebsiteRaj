@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 // const history = useHistory();
@@ -7,6 +7,7 @@ import StudentDetail from './StudentDetail';
 
 const BatchDetail = () => {
     const { batchId } = useParams();
+     const navigate = useNavigate();
     const [batch, setBatch] = useState({});
     const [students, setStudents] = useState([]);
     const [search, setSearch] = useState('');
@@ -16,6 +17,10 @@ const BatchDetail = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [showStudentDetail, setShowStudentDetail] = useState(false);
     const [studentToEdit, setStudentToEdit] = useState(null);
+
+       const handleScheduleClick = () => {
+        navigate(`/schedule/${batchId}`); // Redirect to the schedule page
+    };
 
     useEffect(() => {
         // Fetch batch details
@@ -28,10 +33,10 @@ const BatchDetail = () => {
                 console.error('Error fetching batch details:', error);
             }
         };
-
-//         const handleScheduleClick = () => {
-//     history.push('/schedule'); // Redirect to the schedule page
-// };
+ 
+   const handleScheduleClick = () => {
+        navigate('/schedule'); // Redirect to the schedule page
+    };
 
 
         // Fetch students in the batch
@@ -157,7 +162,7 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
             cursor: 'pointer',
             borderRadius: '5px'
         }}
-        // onClick={handleScheduleClick} // Call the function on button click
+        onClick={handleScheduleClick} // Call the function on button click
     >
         Schedule
     </button>
