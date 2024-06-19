@@ -5,6 +5,9 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 // const history = useHistory();
 import StudentDetail from './StudentDetail';
 
+
+const APP = process.env.REACT_APP_API_URL;
+
 const BatchDetail = () => {
     const { batchId } = useParams();
      const navigate = useNavigate();
@@ -26,7 +29,7 @@ const BatchDetail = () => {
         // Fetch batch details
         const fetchBatchDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:7000/api/batches/${batchId}`);
+                const response = await axios.get(`${APP}/api/batches/${batchId}`);
                 console.log(response.data);
                 setBatch(response.data);
             } catch (error) {
@@ -42,7 +45,7 @@ const BatchDetail = () => {
         // Fetch students in the batch
         const fetchStudents = async () => {
             try {
-                const response = await axios.get(`http://localhost:7000/api/student/${batchId}/students`);
+                const response = await axios.get(`${APP}/api/student/${batchId}/students`);
                 setStudents(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -109,7 +112,7 @@ const BatchDetail = () => {
 
 const handleDeleteStudent = async (enrollmentNo, setStudents) => {
     try {
-        await axios.delete(`http://localhost:7000/api/student/enrollmentNo/${enrollmentNo}`);
+        await axios.delete(`${APP}/api/student/enrollmentNo/${enrollmentNo}`);
         setStudents(prevStudents => prevStudents.filter(student => student.enrollmentNo !== enrollmentNo));
         // alert('Student deleted successfully');
     } catch (error) {
@@ -127,7 +130,7 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
     try {
         // Assuming you have an API endpoint to add a new student
         // Make sure to replace 'http://localhost:7000/api/students' with your actual endpoint
-        const response = await axios.post('http://localhost:7000/api/student', newStudent);
+        const response = await axios.post(`${APP}/api/student`, newStudent);
         // Assuming the response contains the newly added student with an updated ID or other properties
         const addedStudent = response.data;
         setStudents([...students, addedStudent]);

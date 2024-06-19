@@ -6,6 +6,9 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import BatchForm from '../sidebarSection/BatchForm';
 import EditBatchForm from '../sidebarSection/EditBatchForm';
 
+
+const APP = process.env.REACT_APP_API_URL;
+
 const initialNavItems = [
   {
     type: 'item',
@@ -44,7 +47,7 @@ function Sidebar() {
 
   const fetchBatches = async () => {
     try {
-      const response = await axios.get('http://localhost:7000/api/batches');
+      const response = await axios.get(`${APP}/api/batches`);
       const batches = response.data;
       setNavItems((prevNavItems) => {
         const updatedNavItems = [...prevNavItems];
@@ -99,7 +102,7 @@ const addBatch = async (newBatch) => {
 
   const editBatch = async (updatedBatch) => {
     try {
-      await axios.put(`http://localhost:7000/api/batches/${updatedBatch._id}`, updatedBatch);
+      await axios.put(`${APP}/api/batches/${updatedBatch._id}`, updatedBatch);
       setNavItems((prevNavItems) => {
         const updatedNavItems = [...prevNavItems];
         const batchIndex = updatedNavItems[1].children.findIndex(
@@ -120,7 +123,7 @@ const addBatch = async (newBatch) => {
 
   const removeBatch = async (batchId) => {
     try {
-      await axios.delete(`http://localhost:7000/api/batches/${batchId}`);
+      await axios.delete(`${APP}/api/batches/${batchId}`);
       setNavItems((prevNavItems) => {
         const updatedNavItems = [...prevNavItems];
         updatedNavItems[1].children = updatedNavItems[1].children.filter(

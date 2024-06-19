@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+
+const APP = process.env.REACT_APP_API_URL;
+
 const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
     const [student, setStudent] = useState({
         firstName: '',
@@ -33,12 +36,12 @@ const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
         try {
             if (studentToEdit) {
                 // Edit student
-                await axios.put(`http://localhost:7000/api/student/${studentToEdit._id}`, student);
+                await axios.put(`${APP}/api/student/${studentToEdit._id}`, student);
                 setStudent(prevStudents => prevStudents.map(s => s._id === studentToEdit._id ? student : s));
                 window.location.reload()
             } else {
                 // Add new student
-                const response = await axios.post(`http://localhost:7000/api/student`, student);
+                const response = await axios.post(`${APP}/api/student`, student);
                 onAddStudent(response.data);
                 window.location.reload(false);
             }

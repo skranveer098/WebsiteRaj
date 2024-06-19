@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
+
+const APP = process.env.REACT_APP_API_URL;
+
 function Nav() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [batch, setBatch] = useState({});
@@ -14,7 +17,7 @@ function Nav() {
 
     const fetchBatchDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:7000/api/batches/${batchId}`);
+        const response = await axios.get(`${APP}/api/batches/${batchId}`);
         console.log(response.data);
         setBatch(response.data);
       } catch (error) {
