@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: emailId,
-      subject: 'Welcome to the batch',
+      subject: 'Congratulations....Welcome to the batch',
       text: `Hello ${firstName},\n\nYou have been successfully enrolled in the batch with ID ${batchId}.`,
     };
 
