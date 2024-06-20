@@ -67,7 +67,7 @@ function Sidebar() {
 const addBatch = async (newBatch) => {
   try {
     // Make an asynchronous request to fetch the ID from MongoDB
-    const response = await fetch('/api/getObjectId', {
+    const response = await fetch(`${APP}/api/getObjectId`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

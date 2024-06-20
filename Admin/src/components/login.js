@@ -36,7 +36,7 @@ function Login({ hideCreateAccountButton = false }) {
 
     try {
       if (isLogin) {
-        const response = await axios.post(`/api/auth/login`, { username, password });
+        const response = await axios.post(`${AP}/api/auth/login`, { username, password });
         console.log('Login response:', response.data);
         localStorage.setItem('token', response.data.token);
       } else {
