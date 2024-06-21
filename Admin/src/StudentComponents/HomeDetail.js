@@ -8,6 +8,7 @@ const AP = process.env.REACT_APP_API_URL;
 const HomeDetail = () => {
   const { username } = useParams();
   const navigate = useNavigate();
+  const { batchId } = useParams();
   const [batchData, setBatchData] = useState({
     name: '',
     description: ''
@@ -44,7 +45,7 @@ const HomeDetail = () => {
   }, [username]);
 
   const handleScheduleClick = () => {
-    navigate('/scheduler');
+    navigate(`/scheduler/${studentData.batchId}`);
   };
 
   if (error) {
