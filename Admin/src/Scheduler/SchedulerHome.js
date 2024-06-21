@@ -10,7 +10,7 @@ function SchedulerHome() {
     return (
         <div>
             <Nav />
-            <Scroll style={{ display: "inline" }} />
+            <Scroll style={{ display: "inline" }} showbar={true}/>
             <Calender style={{display:"inline"}} />
         </div>
     )

@@ -1,5 +1,5 @@
-// Student.js:-
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 // Define the class schema
 const classSchema = new mongoose.Schema({
@@ -21,11 +21,20 @@ const studentSchema = new mongoose.Schema({
   lastName: { type: String, required: true },
   enrollmentNo: { type: String, required: true, unique: true },
   emailId: { type: String, required: true },
-  password: { type: String, required: true },
+  username: { type: String, unique: true }, // Add username field
+  password: { type: String, required: true }, // Add password field
   startDate: { type: Date, required: true },
   endDate: { type: Date, required: true },
   batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch', required: true },
   schedule: [scheduleSchema] // Add the schedule field
+});
+
+// Hash password before saving the student
+studentSchema.pre('save', async function(next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
 });
 
 const Student = mongoose.model('Student', studentSchema);

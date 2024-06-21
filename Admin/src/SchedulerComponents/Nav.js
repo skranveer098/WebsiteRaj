@@ -5,7 +5,11 @@ import axios from 'axios';
 
 const APP = process.env.REACT_APP_API_URL;
 
-function Nav() {
+function Nav({ panelType,studentName }) {
+   const panelTitle = panelType === 'student' ? 'Student Panel' : 'Admin Panel';
+  const panelItems = panelType === 'student' 
+    ? ['Home', 'Class Schedule', 'Profile'] // Example student-specific items
+    : ['Dashboard', 'Users', 'Settings']; // Example admin-specific items
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [batch, setBatch] = useState({});
   const { batchId } = useParams();
@@ -74,7 +78,7 @@ function Nav() {
       </div>
       <div style={{ flex: 1, textAlign: 'center' }}>
         <Link to="/admin/home" style={{ ...adminPanelStyle, marginLeft: '35vw', fontSize: '30px' }}>
-          Admin Panel
+          {panelTitle}
         </Link>
       </div>
       <div style={rightyStyle}>
@@ -95,7 +99,7 @@ function Nav() {
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12" y2="16"></line>
         </svg>
-        <div style={{ ...adminPanelStyle, backgroundColor: '#4CAF50', color: '#fff' }}>User</div>
+        <div style={{ ...adminPanelStyle, backgroundColor: '#4CAF50', color: '#fff' }}>{studentName}</div>
       </div>
     </div>
   );

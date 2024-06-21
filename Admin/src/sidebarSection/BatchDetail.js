@@ -226,16 +226,13 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('enrollmentNo')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Enrollment No.</button>
                         </th>
-                        {/* <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('batchName')}>
-    <button style={{ all: 'unset', cursor: 'pointer' }}>Batch Name</button>
-</th> */}
 
                         <th style={{ backgroundColor: '#f2f2f2',padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('emailId')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Email ID</button>
                         </th>
-                        <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('password')}>
+                        {/* <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('password')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Password</button>
-                        </th>
+                        </th> */}
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('startDate')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Start Date</button>
                         </th>
@@ -253,9 +250,9 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.firstName}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.lastName}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.enrollmentNo}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.batchName}</td>
+                            {/* <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.batchName}</td> */}
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.emailId}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.password}</td>
+                            {/* <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.password}</td> */}
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.startDate}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.endDate}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-around' }}>

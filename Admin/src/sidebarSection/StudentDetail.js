@@ -9,7 +9,7 @@ const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
         lastName: '',
         enrollmentNo: '',
         emailId: '',
-        password: '',
+        // password: '',
         startDate: '',
         endDate: '',
         batchId: batchId || '', // Set batchId from prop
@@ -74,10 +74,10 @@ const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
                         <label>Email ID:</label>
                         <input type="email" name="emailId" value={student.emailId} onChange={handleChange} style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
                     </div>
-                    <div style={{ marginBottom: '10px' }}>
+                    {/* <div style={{ marginBottom: '10px' }}>
                         <label>Password:</label>
                         <input type="password" name="password" value={student.password} onChange={handleChange} style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />
-                    </div>
+                    </div> */}
                     <div style={{ marginBottom: '10px' }}>
                         <label>Start Date:</label>
                         <input type="date" name="startDate" value={student.startDate} onChange={handleChange} style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} />

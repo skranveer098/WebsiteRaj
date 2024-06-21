@@ -12,13 +12,15 @@ import StudentLogin from './Student/StudentLogin';
 import StudentHome from './Student/StudentHome';
 import ScheduleHome from './Scheduler/SchedulerHome';
 import { DateProvider } from './SchedulerComponents/DateContext';
+import Scheduler from './StudentComponents/Scheduler';
 
 const App = () => {
   return (
     <DateProvider>
       <Routes>
         <Route path="/" element={<StudentLogin />} />
-        <Route path="/home" element={<StudentHome />} />
+        <Route path="/home/:username" element={<StudentHome />} />
+        <Route path="/scheduler" element={<Scheduler />} />
         <Route path="/admin" element={<Login />} />
         <Route path="/admin/home" element={<Home />} />
         <Route path="/ProfilePage" element={<ProfilePage />} />
