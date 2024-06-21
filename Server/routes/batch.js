@@ -7,8 +7,8 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   try {
     console.log('Request body:', req.body);
-    const { name, description } = req.body;
-    const batch = await new Batch({ name, description, object: [] }).save();
+    const { name, description,startDate } = req.body;
+    const batch = await new Batch({ name, description,startDate, object: [] }).save();
     res.status(201).send(batch);
   } catch (err) {
     console.error('Error creating batch:', err.message);
@@ -42,10 +42,10 @@ router.get('/:id', async (req, res) => {
 // Update a batch
 router.put('/:id', async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description,startDate } = req.body;
     const batch = await Batch.findByIdAndUpdate(
       req.params.id, 
-      { name, description }, 
+      { name, description,startDate }, 
       { new: true, runValidators: true }
     );
     if (!batch) {

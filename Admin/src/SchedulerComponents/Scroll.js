@@ -66,7 +66,7 @@ function SideScroll({ showbar, schedule }) {
       };
       const response = await axios.post(
         `${APP}/api/batches/${batchId}/schedule`, 
-        payload
+        [payload]
       );
       
       // Update notes for the current clickedDate only

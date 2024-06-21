@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-// const history = useHistory();
 import StudentDetail from './StudentDetail';
-
 
 const APP = process.env.REACT_APP_API_URL;
 
 const BatchDetail = () => {
     const { batchId } = useParams();
-     const navigate = useNavigate();
+    const navigate = useNavigate();
     const [batch, setBatch] = useState({});
     const [students, setStudents] = useState([]);
     const [search, setSearch] = useState('');
@@ -21,33 +19,22 @@ const BatchDetail = () => {
     const [showStudentDetail, setShowStudentDetail] = useState(false);
     const [studentToEdit, setStudentToEdit] = useState(null);
 
-       const handleScheduleClick = () => {
-        navigate(`/schedule/${batchId}`); // Redirect to the schedule page
-    };
-
     useEffect(() => {
         // Fetch batch details
         const fetchBatchDetails = async () => {
             try {
                 const response = await axios.get(`${APP}/api/batches/${batchId}`);
-                console.log(response.data);
                 setBatch(response.data);
             } catch (error) {
                 console.error('Error fetching batch details:', error);
             }
         };
- 
-   const handleScheduleClick = () => {
-        navigate('/schedule'); // Redirect to the schedule page
-    };
-
 
         // Fetch students in the batch
         const fetchStudents = async () => {
             try {
                 const response = await axios.get(`${APP}/api/student/${batchId}/students`);
                 setStudents(response.data);
-                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching students:', error);
             }
@@ -110,42 +97,39 @@ const BatchDetail = () => {
         setShowStudentDetail(true);
     };
 
-const handleDeleteStudent = async (enrollmentNo, setStudents) => {
-    try {
-        await axios.delete(`${APP}/api/student/enrollmentNo/${enrollmentNo}`);
-        setStudents(prevStudents => prevStudents.filter(student => student.enrollmentNo !== enrollmentNo));
-        // alert('Student deleted successfully');
-    } catch (error) {
-        console.error('Error deleting student:', error);
-        alert('An error occurred while deleting the student. Please try again.');
-    }
-};
+    const handleDeleteStudent = async (enrollmentNo) => {
+        try {
+            await axios.delete(`${APP}/api/student/enrollmentNo/${enrollmentNo}`);
+            setStudents(prevStudents => prevStudents.filter(student => student.enrollmentNo !== enrollmentNo));
+        } catch (error) {
+            console.error('Error deleting student:', error);
+            alert('An error occurred while deleting the student. Please try again.');
+        }
+    };
 
     const handleAddStudentClick = () => {
         setStudentToEdit(null);
         setShowStudentDetail(true);
     };
 
-   const handleAddStudent = async (newStudent) => {
-    try {
-        // Assuming you have an API endpoint to add a new student
-        // Make sure to replace 'http://localhost:7000/api/students' with your actual endpoint
-        const response = await axios.post(`${APP}/api/student`, newStudent);
-        // Assuming the response contains the newly added student with an updated ID or other properties
-        const addedStudent = response.data;
-        setStudents([...students, addedStudent]);
-        setShowStudentDetail(false);
-        window.location.reload();
-        setSearch(''); // Reset search to show the newly added student
-    } catch (error) {
-        console.error('Error adding student:', error);
-        // Optionally, show an error message to the user
-    }
-};
-
+    const handleAddStudent = async (newStudent) => {
+        try {
+            const response = await axios.post(`${APP}/api/student`, newStudent);
+            const addedStudent = response.data;
+            setStudents([...students, addedStudent]);
+            setShowStudentDetail(false);
+            setSearch('');
+        } catch (error) {
+            console.error('Error adding student:', error);
+        }
+    };
 
     const handleCloseStudentDetail = () => {
         setShowStudentDetail(false);
+    };
+
+    const handleScheduleClick = () => {
+        navigate(`/schedule/${batchId}`);
     };
 
     return (
@@ -155,34 +139,33 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                 <div className="pagetitle" style={{ marginBottom: '20px' }}>
                     <h1>{batch.name}</h1>
                 </div>
-                                  <div style={{ position: 'fixed', top: '20px', right: '20px' }}>
-    <button
-        style={{
-            padding: '10px 20px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            cursor: 'pointer',
-            borderRadius: '5px'
-        }}
-        onClick={handleScheduleClick} // Call the function on button click
-    >
-        Schedule
-    </button>
-</div>
+                <div style={{ position: 'fixed', top: '20px', right: '20px' }}>
+                    <button
+                        style={{
+                            padding: '10px 20px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            cursor: 'pointer',
+                            borderRadius: '5px'
+                        }}
+                        onClick={handleScheduleClick}
+                    >
+                        Schedule
+                    </button>
+                </div>
 
                 <section className="section">
                     <div className="row">
                         <div className="col-lg-12">
                             <div className="card">
                                 <div className="card-body">
-                                    <h5 className="card-title">{batch.name}</h5>
+                                    <h5 className="card-title">Batch starts from {batch.startDate}</h5>
                                     <p>{batch.description}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
                 </section>
             </div>
 
@@ -226,13 +209,9 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('enrollmentNo')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Enrollment No.</button>
                         </th>
-
-                        <th style={{ backgroundColor: '#f2f2f2',padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('emailId')}>
+                        <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('emailId')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Email ID</button>
                         </th>
-                        {/* <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('password')}>
-                            <button style={{ all: 'unset', cursor: 'pointer' }}>Password</button>
-                        </th> */}
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('startDate')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Start Date</button>
                         </th>
@@ -250,18 +229,16 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.firstName}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.lastName}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.enrollmentNo}</td>
-                            {/* <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.batchName}</td> */}
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.emailId}</td>
-                            {/* <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.password}</td> */}
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.startDate}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.endDate}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-around' }}>
                                 <button onClick={() => handleEditStudent(student)} style={{ all: 'unset', cursor: 'pointer', color: '#007bff' }}>
                                     <FaEdit />
                                 </button>
-                                <button onClick={() => handleDeleteStudent(student.enrollmentNo, setStudents)} style={{ all: 'unset', cursor: 'pointer', color: 'red' }}>
-    <FaTrash />
-</button>
+                                <button onClick={() => handleDeleteStudent(student.enrollmentNo)} style={{ all: 'unset', cursor: 'pointer', color: 'red' }}>
+                                    <FaTrash />
+                                </button>
                             </td>
                         </tr>
                     ))}
@@ -314,7 +291,6 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
 
             {/* Add Student Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '10px 0' }}>
-
                 <button
                     style={{
                         padding: '10px 20px',
@@ -336,7 +312,7 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                     onAddStudent={handleAddStudent}
                     onClose={handleCloseStudentDetail}
                     studentToEdit={studentToEdit}
-                    batchId={batchId} 
+                    batchId={batchId}
                 />
             )}
         </div>

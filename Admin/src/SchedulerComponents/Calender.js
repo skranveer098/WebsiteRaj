@@ -18,124 +18,118 @@ const Calendar = ({ onDateClick, joiningDate }) => {
     "July", "August", "September", "October", "November", "December"
   ];
 
-const renderCalendar = () => {
-  const start = new Date(year, month, 1).getDay();
-  const endDate = new Date(year, month + 1, 0).getDate();
-  const end = new Date(year, month, endDate).getDay();
+  const renderCalendar = () => {
+    const start = new Date(year, month, 1).getDay();
+    const endDate = new Date(year, month + 1, 0).getDate();
+    const end = new Date(year, month, endDate).getDay();
+    const today = new Date();
+    // const currentMonth = today.getMonth();
+    // const currentYear = today.getFullYear();
 
-  // Calculate one day before the joining date
-  const oneDayBeforeJoiningDate = new Date(joiningDate);
-  oneDayBeforeJoiningDate.setDate(oneDayBeforeJoiningDate.getDate() - 1);
+    let datesHtml = [];
 
-  let datesHtml = [];
-
-  // Previous month dates
-  for (let i = start; i > 0; i--) {
-    const prevMonthDay = new Date(year, month, -i + 1);
-    datesHtml.push(
-      <li
-        key={`prev-${i}`}
-        style={{
-          color: "#ccc",
-          width: "calc(100% / 7)",
-          marginTop: "25px",
-          position: "relative",
-          zIndex: 2,
-          opacity: 0.4,
-        }}
-      >
-        <button
-          disabled
+    // Previous month dates
+    for (let i = start; i > 0; i--) {
+      const prevMonthDay = new Date(year, month, -i + 1);
+      datesHtml.push(
+        <li
+          key={`prev-${i}`}
           style={{
-            width: "2rem",
-            height: "2rem",
-            backgroundColor: "transparent",
-            border: "none",
-            cursor: "default",
+            color: "#ccc",
+            width: "calc(100% / 7)",
+            marginTop: "25px",
+            position: "relative",
+            zIndex: 2,
+            opacity: 0.4,
           }}
         >
-          {prevMonthDay.getDate()}
-        </button>
-      </li>
-    );
-  }
+          <button
+            disabled
+            style={{
+              width: "2rem",
+              height: "2rem",
+              backgroundColor: "transparent",
+              border: "none",
+              cursor: "default",
+            }}
+          >
+            {prevMonthDay.getDate()}
+          </button>
+        </li>
+      );
+    }
 
-  // Current month dates
-  for (let i = 1; i <= endDate; i++) {
-    const currentDate = new Date(year, month, i);
-    const isSelected =
-      selectedDate &&
-      selectedDate.getDate() === i &&
-      selectedDate.getMonth() === month &&
-      selectedDate.getFullYear() === year;
-    const isBeforeThresholdDate = currentDate < oneDayBeforeJoiningDate;
+    // Current month dates
+    for (let i = 1; i <= endDate; i++) {
+      const isSelected =
+        selectedDate &&
+        selectedDate.getDate() === i &&
+        selectedDate.getMonth() === month &&
+        selectedDate.getFullYear() === year;
 
-    datesHtml.push(
-      <li
-        key={`current-${i}`}
-        style={{
-          color: isSelected ? "#000" : "inherit",
-          width: "calc(100% / 7)",
-          marginTop: "25px",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <button
-          onClick={() => handleDateClick(i)}
-          disabled={isBeforeThresholdDate}
+      datesHtml.push(
+        <li
+          key={`current-${i}`}
           style={{
-            width: "2rem",
-            height: "2rem",
-            backgroundColor: isSelected ? "#fff" : "transparent",
-            borderRadius: isSelected ? "50%" : "none",
             color: isSelected ? "#000" : "inherit",
-            cursor: isBeforeThresholdDate ? "not-allowed" : "pointer",
-            border: "none",
-            outline: "none",
+            width: "calc(100% / 7)",
+            marginTop: "25px",
+            position: "relative",
+            zIndex: 2,
           }}
         >
-          {i}
-        </button>
-      </li>
-    );
-  }
+          <button
+            onClick={() => handleDateClick(i)}
+            style={{
+              width: "2rem",
+              height: "2rem",
+              backgroundColor: isSelected ? "#fff" : "transparent",
+              borderRadius: isSelected ? "50%" : "none",
+              color: isSelected ? "#000" : "inherit",
+              cursor: "pointer",
+              border: "none",
+              outline: "none",
+            }}
+          >
+            {i}
+          </button>
+        </li>
+      );
+    }
 
-  // Next month dates
-  for (let i = 1; i < 7 - end; i++) {
-    const nextMonthDay = new Date(year, month + 1, i);
-    datesHtml.push(
-      <li
-        key={`next-${i}`}
-        style={{
-          color: "#ccc",
-          width: "calc(100% / 7)",
-          marginTop: "25px",
-          position: "relative",
-          zIndex: 2,
-          opacity: 0.4,
-        }}
-      >
-        <button
-          disabled
+    // Next month dates
+    for (let i = 1; i < 7 - end; i++) {
+      const nextMonthDay = new Date(year, month + 1, i);
+      datesHtml.push(
+        <li
+          key={`next-${i}`}
           style={{
-            width: "2rem",
-            height: "2rem",
-            backgroundColor: "transparent",
-            border: "none",
-            cursor: "default",
+            color: "#ccc",
+            width: "calc(100% / 7)",
+            marginTop: "25px",
+            position: "relative",
+            zIndex: 2,
+            opacity: 0.4,
           }}
         >
-          {nextMonthDay.getDate()}
-        </button>
-      </li>
-    );
-  }
+          <button
+            disabled
+            style={{
+              width: "2rem",
+              height: "2rem",
+              backgroundColor: "transparent",
+              border: "none",
+              cursor: "default",
+            }}
+          >
+            {nextMonthDay.getDate()}
+          </button>
+        </li>
+      );
+    }
 
-  return datesHtml;
-};
-
-
+    return datesHtml;
+  };
 
   const handleNavClick = (direction) => {
     if (direction === "prev") {
