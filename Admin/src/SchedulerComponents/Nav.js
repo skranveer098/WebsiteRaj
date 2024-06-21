@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
-function Nav() {
+
+const APP = process.env.REACT_APP_API_URL;
+
+function Nav({ panelType,studentName }) {
+   const panelTitle = panelType === 'student' ? 'Student Panel' : 'Admin Panel';
+  const panelItems = panelType === 'student' 
+    ? ['Home', 'Class Schedule', 'Profile'] // Example student-specific items
+    : ['Dashboard', 'Users', 'Settings']; // Example admin-specific items
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [batch, setBatch] = useState({});
   const { batchId } = useParams();
@@ -14,7 +21,7 @@ function Nav() {
 
     const fetchBatchDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:7000/api/batches/${batchId}`);
+        const response = await axios.get(`${APP}/api/batches/${batchId}`);
         console.log(response.data);
         setBatch(response.data);
       } catch (error) {
@@ -71,7 +78,7 @@ function Nav() {
       </div>
       <div style={{ flex: 1, textAlign: 'center' }}>
         <Link to="/admin/home" style={{ ...adminPanelStyle, marginLeft: '35vw', fontSize: '30px' }}>
-          Admin Panel
+          {panelTitle}
         </Link>
       </div>
       <div style={rightyStyle}>
@@ -92,7 +99,7 @@ function Nav() {
           <line x1="12" y1="8" x2="12" y2="12"></line>
           <line x1="12" y1="16" x2="12" y2="16"></line>
         </svg>
-        <div style={{ ...adminPanelStyle, backgroundColor: '#4CAF50', color: '#fff' }}>User</div>
+        <div style={{ ...adminPanelStyle, backgroundColor: '#4CAF50', color: '#fff' }}>{studentName}</div>
       </div>
     </div>
   );

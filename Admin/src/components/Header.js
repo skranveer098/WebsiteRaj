@@ -6,6 +6,9 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import logo from '../img/coachifylogo.png';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Ensure Bootstrap JS is included
 
+
+const APP = process.env.REACT_APP_API_URL;
+
 function Header({ title, showNotifications }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileName, setProfileName] = useState('');
@@ -31,7 +34,7 @@ function Header({ title, showNotifications }) {
        // Fetch the user's profile
     const fetchProfileName = async () => {
       try {
-        const response = await fetch('http://localhost:7000/api/profile', {
+        const response = await fetch(`${APP}/api/profile`, {
           headers: {
             'x-auth-token': localStorage.getItem('token'), // Assuming you store the token in localStorage
           },

@@ -11,27 +11,49 @@ dotenv.config();
 // Create a new student
 router.post('/', async (req, res) => {
   try {
-    const { firstName, lastName, enrollmentNo, emailId, password, startDate, endDate, batchId } = req.body;
+    const { firstName, lastName, enrollmentNo, emailId, startDate, endDate, batchId } = req.body;
+
+    // Fetch the batch details to generate the username
+    const batchDetails = await Batch.findById(batchId).exec();
+    if (!batchDetails) {
+      return res.status(404).json({ status: "error", message: "Batch not found" });
+    }
+
+    const batchName = batchDetails.name;
+    const username = `${firstName}_${batchName}`;
+    const password = `${firstName}_${enrollmentNo}`;
+
+    // Create a new student
     const student = new Student({
       firstName,
       lastName,
       enrollmentNo,
       emailId,
-      password,
+      username,
+      password, // Store plain text password to be hashed by mongoose pre-save hook
       startDate: new Date(startDate),
       endDate: new Date(endDate),
       batchId
     });
 
     await student.save();
+
+    // Update the batch with the new student
     const batch = await Batch.findByIdAndUpdate(
       batchId,
       { $addToSet: { object: student._id } },
       { new: true, runValidators: true }
     );
+
+    if (!batch) {
+      return res.status(404).json({ status: "error", message: "Batch not found" });
+    }
+
     console.log(batch);
+
     console.log('EMAIL_USER:', process.env.EMAIL_USER);
 
+    // Configure the email transporter
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       host: "smtp.gmail.com",
@@ -43,14 +65,67 @@ router.post('/', async (req, res) => {
       }
     });
 
+    // Email options
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: emailId,
       subject: 'Congratulations....Welcome to the batch',
-      text: `Hello ${firstName},\n\nYou have been successfully enrolled in the batch with ID ${batchId}.`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+            }
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              border: 1px solid #ddd;
+              border-radius: 5px;
+            }
+            .header {
+              background-color: #f4f4f4;
+              padding: 10px;
+              text-align: center;
+              border-bottom: 1px solid #ddd;
+            }
+            .content {
+              padding: 20px;
+            }
+            .footer {
+              background-color: #f4f4f4;
+              padding: 10px;
+              text-align: center;
+              border-top: 1px solid #ddd;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2>Welcome to the Batch!</h2>
+            </div>
+            <div class="content">
+              <p>Hello ${firstName},</p>
+              <p>You have been successfully enrolled in the batch <strong>${batchName}</strong>.</p>
+              <p>Your username is: <strong>${username}</strong></p>
+              <p>Your password is: <strong>${password}</strong></p>
+            </div>
+            <div class="footer">
+              <p>&copy; 2024 Coachify</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
     };
 
     try {
+      // Send the email
       const info = await transporter.sendMail(mailOptions);
       console.log('Email sent:', info.response);
       res.status(200).json({ status: "success", message: "Student saved and email sent successfully", info: info.response });
@@ -67,6 +142,7 @@ router.post('/', async (req, res) => {
     }
   }
 });
+
 
 router.get('/:id/students', async (req, res) => {
   try {
@@ -165,6 +241,24 @@ router.delete('/enrollmentNo/:enrollmentNo', async (req, res) => {
     res.status(500).send(err);
   }
 });
+
+router.get('/username/:username', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const student = await Student.findOne({ username });
+
+    if (!student) {
+      return res.status(404).json({ status: "error", message: "Student not found" });
+    }
+
+    res.status(200).json(student);
+  } catch (error) {
+    console.error('Error fetching student by username:', error);
+    res.status(500).json({ status: "error", message: "Failed to fetch student" });
+  }
+});
+
+
 
 // Add or update schedule for a student
 router.post('/:studentId/schedule', async (req, res) => {

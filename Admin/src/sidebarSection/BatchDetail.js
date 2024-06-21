@@ -5,6 +5,9 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 // const history = useHistory();
 import StudentDetail from './StudentDetail';
 
+
+const APP = process.env.REACT_APP_API_URL;
+
 const BatchDetail = () => {
     const { batchId } = useParams();
      const navigate = useNavigate();
@@ -26,7 +29,7 @@ const BatchDetail = () => {
         // Fetch batch details
         const fetchBatchDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:7000/api/batches/${batchId}`);
+                const response = await axios.get(`${APP}/api/batches/${batchId}`);
                 console.log(response.data);
                 setBatch(response.data);
             } catch (error) {
@@ -42,7 +45,7 @@ const BatchDetail = () => {
         // Fetch students in the batch
         const fetchStudents = async () => {
             try {
-                const response = await axios.get(`http://localhost:7000/api/student/${batchId}/students`);
+                const response = await axios.get(`${APP}/api/student/${batchId}/students`);
                 setStudents(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -109,7 +112,7 @@ const BatchDetail = () => {
 
 const handleDeleteStudent = async (enrollmentNo, setStudents) => {
     try {
-        await axios.delete(`http://localhost:7000/api/student/enrollmentNo/${enrollmentNo}`);
+        await axios.delete(`${APP}/api/student/enrollmentNo/${enrollmentNo}`);
         setStudents(prevStudents => prevStudents.filter(student => student.enrollmentNo !== enrollmentNo));
         // alert('Student deleted successfully');
     } catch (error) {
@@ -127,7 +130,7 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
     try {
         // Assuming you have an API endpoint to add a new student
         // Make sure to replace 'http://localhost:7000/api/students' with your actual endpoint
-        const response = await axios.post('http://localhost:7000/api/student', newStudent);
+        const response = await axios.post(`${APP}/api/student`, newStudent);
         // Assuming the response contains the newly added student with an updated ID or other properties
         const addedStudent = response.data;
         setStudents([...students, addedStudent]);
@@ -223,16 +226,13 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('enrollmentNo')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Enrollment No.</button>
                         </th>
-                        {/* <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('batchName')}>
-    <button style={{ all: 'unset', cursor: 'pointer' }}>Batch Name</button>
-</th> */}
 
                         <th style={{ backgroundColor: '#f2f2f2',padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('emailId')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Email ID</button>
                         </th>
-                        <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('password')}>
+                        {/* <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('password')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Password</button>
-                        </th>
+                        </th> */}
                         <th style={{ backgroundColor: '#f2f2f2', padding: '10px', textAlign: 'left', borderBottom: '2px solid #ddd', cursor: 'pointer' }} onClick={() => handleSort('startDate')}>
                             <button style={{ all: 'unset', cursor: 'pointer' }}>Start Date</button>
                         </th>
@@ -250,9 +250,9 @@ const handleDeleteStudent = async (enrollmentNo, setStudents) => {
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.firstName}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.lastName}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.enrollmentNo}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.batchName}</td>
+                            {/* <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.batchName}</td> */}
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.emailId}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.password}</td>
+                            {/* <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.password}</td> */}
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.startDate}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>{student.endDate}</td>
                             <td style={{ padding: '10px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-around' }}>

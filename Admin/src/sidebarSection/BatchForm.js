@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+
+const APP = process.env.REACT_APP_API_URL;
+
 function BatchForm({ onAddBatch, onEditBatch, onCancel, isEditMode, batchToEdit }) {
   const [batchName, setBatchName] = useState('');
   const [batchDescription, setBatchDescription] = useState('');
@@ -21,10 +24,10 @@ function BatchForm({ onAddBatch, onEditBatch, onCancel, isEditMode, batchToEdit 
     };
     try {
       if (isEditMode) {
-        await axios.put(`http://localhost:7000/api/batches/${batchToEdit._id}`, newBatch);
+        await axios.put(`${APP}/api/batches/${batchToEdit._id}`, newBatch);
         onEditBatch({ ...batchToEdit, label: batchName, description: batchDescription });
       } else {
-        const response = await axios.post('http://localhost:7000/api/batches', newBatch);
+        const response = await axios.post(`${APP}/api/batches`, newBatch);
         onAddBatch({ href: '/BatchDetail', label: batchName, description: batchDescription });
         setBatchName('');
         setBatchDescription('');

@@ -1,32 +1,60 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
+
+const AP = process.env.REACT_APP_API_URL;
 
 const HomeDetail = () => {
-  const batchDetails = {
-    name: "Batch A",
-    startDate: "2023-01-10",
-    endDate: "2023-12-20",
+  const { username } = useParams();
+  const navigate = useNavigate();
+  const { batchId } = useParams();
+  const [batchData, setBatchData] = useState({
+    name: '',
+    description: ''
+  });
+  const [studentData, setStudentData] = useState({
+    firstName: '',
+    lastName: '',
+    enrollmentNo: '',
+    emailId: '',
+    startDate: '',
+    endDate: '',
+    batchId: '',
+  });
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    console.log('Fetching data for username:', username); // Debug log
+    const fetchStudentData = async () => {
+      try {
+        const response = await axios.get(`${AP}/api/student/username/${username}`);
+        console.log('Fetched student data:', response.data); // Debug log
+        setStudentData(response.data);
+        const batchResponse = await axios.get(`${AP}/api/batches/${response.data.batchId}`);
+        setBatchData(batchResponse.data);
+      } catch (error) {
+        console.error('Error fetching student data:', error); // Debug log
+        setError('Failed to fetch student details');
+      }
+    };
+
+    if (username) {
+      fetchStudentData();
+    }
+  }, [username]);
+
+  const handleScheduleClick = () => {
+    navigate(`/scheduler/${studentData.batchId}`);
   };
 
-  const schedule = [
-    { day: "Monday", time: "10:00 AM - 12:00 PM" },
-    { day: "Wednesday", time: "2:00 PM - 4:00 PM" },
-    { day: "Friday", time: "1:00 PM - 3:00 PM" },
-  ];
+  if (error) {
+    return <div className="alert alert-danger">{error}</div>;
+  }
 
-  const ongoingChapters = [
-    { chapter: "Introduction to React", status: "In Progress" },
-    { chapter: "State and Props", status: "Not Started" },
-    { chapter: "Lifecycle Methods", status: "Not Started" },
-  ];
-
-  const personalDetails = {
-    enrollmentNo: "123456789",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    joiningDate: "2023-01-01",
-    endingDate: "2023-12-31",
-  };
+  if (!studentData) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container" style={{ marginTop: '100px' }}>
@@ -37,28 +65,16 @@ const HomeDetail = () => {
               <h5>Batch Details</h5>
             </div>
             <div className="card-body" style={{ backgroundColor: '#f8f9fa' }}>
-              <p><strong>Batch Name:</strong> {batchDetails.name}</p>
-              <p><strong>Start Date:</strong> {batchDetails.startDate}</p>
-              <p><strong>End Date:</strong> {batchDetails.endDate}</p>
+              <p><strong>Batch Name:</strong> {batchData.name}</p>
+              <p><strong>Start Date:</strong></p>
+              <p><strong>End Date:</strong></p>
             </div>
           </div>
         </div>
-
-        <div className="col-md-6">
-          <div className="card mb-4">
-            <div className="card-header" style={{ backgroundColor: '#007bff', color: 'white' }}>
-              <h5>Schedule</h5>
-            </div>
-            <div className="card-body" style={{ backgroundColor: '#f8f9fa' }}>
-              <ul className="list-group list-group-flush">
-                {schedule.map((item, index) => (
-                  <li key={index} className="list-group-item" style={{ backgroundColor: '#ffffff', borderTop: index !== 0 ? '1px solid #dee2e6' : 'none' }}>
-                    <strong>{item.day}:</strong> {item.time}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+        <div className="col-md-4 d-flex align-items-start justify-content-end">
+          <button className="btn btn-primary mb-4" onClick={handleScheduleClick}>
+            Class Schedule
+          </button>
         </div>
       </div>
 
@@ -66,37 +82,20 @@ const HomeDetail = () => {
         <div className="col-md-6">
           <div className="card mb-4">
             <div className="card-header" style={{ backgroundColor: '#007bff', color: 'white' }}>
-              <h5>Ongoing Chapters</h5>
-            </div>
-            <div className="card-body" style={{ backgroundColor: '#f8f9fa' }}>
-              <ul className="list-group list-group-flush">
-                {ongoingChapters.map((item, index) => (
-                  <li key={index} className="list-group-item" style={{ backgroundColor: '#ffffff', borderTop: index !== 0 ? '1px solid #dee2e6' : 'none' }}>
-                    <strong>{item.chapter}:</strong> {item.status}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-6">
-          <div className="card mb-4">
-            <div className="card-header" style={{ backgroundColor: '#007bff', color: 'white' }}>
               <h5>Personal Details</h5>
             </div>
             <div className="card-body" style={{ backgroundColor: '#f8f9fa' }}>
-              <p><strong>Enrollment No:</strong> {personalDetails.enrollmentNo}</p>
-              <p><strong>Name:</strong> {personalDetails.name}</p>
-              <p><strong>Email:</strong> {personalDetails.email}</p>
-              <p><strong>Joining Date:</strong> {personalDetails.joiningDate}</p>
-              <p><strong>Ending Date:</strong> {personalDetails.endingDate}</p>
+              <p><strong>Enrollment No:</strong> {studentData.enrollmentNo}</p>
+              <p><strong>Name:</strong> {studentData.firstName} {studentData.lastName}</p>
+              <p><strong>Email:</strong> {studentData.emailId}</p>
+              <p><strong>Joining Date:</strong> {studentData.startDate}</p>
+              <p><strong>Ending Date:</strong> {studentData.endDate}</p>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default HomeDetail;

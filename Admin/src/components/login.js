@@ -5,6 +5,8 @@ import logo from '../img/coachifylogo.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+const AP = process.env.REACT_APP_API_URL;
+
 function Login({ hideCreateAccountButton = false }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -26,7 +28,7 @@ function Login({ hideCreateAccountButton = false }) {
     });
   };
 
-  const backendURL = 'http://localhost:7000'; // Replace with your backend server URL
+   // Replace with your backend server URL
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -34,11 +36,11 @@ function Login({ hideCreateAccountButton = false }) {
 
     try {
       if (isLogin) {
-        const response = await axios.post(`${backendURL}/api/auth/login`, { username, password });
+        const response = await axios.post(`${AP}/api/auth/login`, { username, password });
         console.log('Login response:', response.data);
         localStorage.setItem('token', response.data.token);
       } else {
-        const response = await axios.post(`${backendURL}/api/auth/register`, { name, email, username, password });
+        const response = await axios.post(`${AP}/api/auth/register`, { name, email, username, password });
         console.log('Registration response:', response.data);
         localStorage.setItem('token', response.data.token);
       }

@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require("path")
 
 dotenv.config();
 
@@ -20,14 +21,21 @@ app.use('/api/profile', require('./routes/profile'));
 app.use('/api/batches', require('./routes/batch'));
 app.use('/api/student', require('./routes/student'));
 
+
+// app.use(express.static(path.resolve(__dirname, "Admin", "build")));
+
+// app.get("/", (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "Admin", "build", "index.html"));
+// });
+
 app.use((req, res, next) => {
   res.status(404).send('Route not found');
 });
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Internal Server Error');
-});
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).send('Internal Server Error');
+// });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

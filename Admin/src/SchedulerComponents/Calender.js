@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useContext } from "react";
 import { DateContext } from './DateContext';
 
-const Calendar = () => {
+const Calendar = ({ onDateClick }) => {
   const [date, setDate] = useState(new Date());
   const [month, setMonth] = useState(date.getMonth());
   const [year, setYear] = useState(date.getFullYear());
   const [selectedDate, setSelectedDate] = useState(null);
   const { setClickedDate } = useContext(DateContext);
+
+   const handleClick = (date) => {
+    // Call the parent component's callback with the clicked date
+    onDateClick(date);
+  };
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -158,7 +163,8 @@ const Calendar = () => {
     <div
       style={{
         marginLeft: "60vw",
-        marginTop: "-65vh",
+        // marginTop: "-65vh",
+        position: "absolute",
         width: "98%",
         maxWidth: "380px",
         padding: "1rem",
