@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { DateContext } from './DateContext';
 
-const Calendar = ({ onDateClick }) => {
+const Calendar = ({ onDateClick, joiningDate }) => {
   const [date, setDate] = useState(new Date());
   const [month, setMonth] = useState(date.getMonth());
   const [year, setYear] = useState(date.getFullYear());
@@ -18,118 +18,124 @@ const Calendar = ({ onDateClick }) => {
     "July", "August", "September", "October", "November", "December"
   ];
 
-  const renderCalendar = () => {
-    const start = new Date(year, month, 1).getDay();
-    const endDate = new Date(year, month + 1, 0).getDate();
-    const end = new Date(year, month, endDate).getDay();
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
+const renderCalendar = () => {
+  const start = new Date(year, month, 1).getDay();
+  const endDate = new Date(year, month + 1, 0).getDate();
+  const end = new Date(year, month, endDate).getDay();
 
-    let datesHtml = [];
+  // Calculate one day before the joining date
+  const oneDayBeforeJoiningDate = new Date(joiningDate);
+  oneDayBeforeJoiningDate.setDate(oneDayBeforeJoiningDate.getDate() - 1);
 
-    // Previous month dates
-    for (let i = start; i > 0; i--) {
-      const prevMonthDay = new Date(year, month, -i + 1);
-      datesHtml.push(
-        <li
-          key={`prev-${i}`}
+  let datesHtml = [];
+
+  // Previous month dates
+  for (let i = start; i > 0; i--) {
+    const prevMonthDay = new Date(year, month, -i + 1);
+    datesHtml.push(
+      <li
+        key={`prev-${i}`}
+        style={{
+          color: "#ccc",
+          width: "calc(100% / 7)",
+          marginTop: "25px",
+          position: "relative",
+          zIndex: 2,
+          opacity: 0.4,
+        }}
+      >
+        <button
+          disabled
           style={{
-            color: "#ccc",
-            width: "calc(100% / 7)",
-            marginTop: "25px",
-            position: "relative",
-            zIndex: 2,
-            opacity: 0.4,
+            width: "2rem",
+            height: "2rem",
+            backgroundColor: "transparent",
+            border: "none",
+            cursor: "default",
           }}
         >
-          <button
-            disabled
-            style={{
-              width: "2rem",
-              height: "2rem",
-              backgroundColor: "transparent",
-              border: "none",
-              cursor: "default",
-            }}
-          >
-            {prevMonthDay.getDate()}
-          </button>
-        </li>
-      );
-    }
+          {prevMonthDay.getDate()}
+        </button>
+      </li>
+    );
+  }
 
-    // Current month dates
-    for (let i = 1; i <= endDate; i++) {
-      const isSelected =
-        selectedDate &&
-        selectedDate.getDate() === i &&
-        selectedDate.getMonth() === month &&
-        selectedDate.getFullYear() === year;
+  // Current month dates
+  for (let i = 1; i <= endDate; i++) {
+    const currentDate = new Date(year, month, i);
+    const isSelected =
+      selectedDate &&
+      selectedDate.getDate() === i &&
+      selectedDate.getMonth() === month &&
+      selectedDate.getFullYear() === year;
+    const isBeforeThresholdDate = currentDate < oneDayBeforeJoiningDate;
 
-      datesHtml.push(
-        <li
-          key={`current-${i}`}
+    datesHtml.push(
+      <li
+        key={`current-${i}`}
+        style={{
+          color: isSelected ? "#000" : "inherit",
+          width: "calc(100% / 7)",
+          marginTop: "25px",
+          position: "relative",
+          zIndex: 2,
+        }}
+      >
+        <button
+          onClick={() => handleDateClick(i)}
+          disabled={isBeforeThresholdDate}
           style={{
+            width: "2rem",
+            height: "2rem",
+            backgroundColor: isSelected ? "#fff" : "transparent",
+            borderRadius: isSelected ? "50%" : "none",
             color: isSelected ? "#000" : "inherit",
-            width: "calc(100% / 7)",
-            marginTop: "25px",
-            position: "relative",
-            zIndex: 2,
+            cursor: isBeforeThresholdDate ? "not-allowed" : "pointer",
+            border: "none",
+            outline: "none",
           }}
         >
-          <button
-            onClick={() => handleDateClick(i)}
-            style={{
-              width: "2rem",
-              height: "2rem",
-              backgroundColor: isSelected ? "#fff" : "transparent",
-              borderRadius: isSelected ? "50%" : "none",
-              color: isSelected ? "#000" : "inherit",
-              cursor: "pointer",
-              border: "none",
-              outline: "none",
-            }}
-          >
-            {i}
-          </button>
-        </li>
-      );
-    }
+          {i}
+        </button>
+      </li>
+    );
+  }
 
-    // Next month dates
-    for (let i = 1; i < 7 - end; i++) {
-      const nextMonthDay = new Date(year, month + 1, i);
-      datesHtml.push(
-        <li
-          key={`next-${i}`}
+  // Next month dates
+  for (let i = 1; i < 7 - end; i++) {
+    const nextMonthDay = new Date(year, month + 1, i);
+    datesHtml.push(
+      <li
+        key={`next-${i}`}
+        style={{
+          color: "#ccc",
+          width: "calc(100% / 7)",
+          marginTop: "25px",
+          position: "relative",
+          zIndex: 2,
+          opacity: 0.4,
+        }}
+      >
+        <button
+          disabled
           style={{
-            color: "#ccc",
-            width: "calc(100% / 7)",
-            marginTop: "25px",
-            position: "relative",
-            zIndex: 2,
-            opacity: 0.4,
+            width: "2rem",
+            height: "2rem",
+            backgroundColor: "transparent",
+            border: "none",
+            cursor: "default",
           }}
         >
-          <button
-            disabled
-            style={{
-              width: "2rem",
-              height: "2rem",
-              backgroundColor: "transparent",
-              border: "none",
-              cursor: "default",
-            }}
-          >
-            {nextMonthDay.getDate()}
-          </button>
-        </li>
-      );
-    }
+          {nextMonthDay.getDate()}
+        </button>
+      </li>
+    );
+  }
 
-    return datesHtml;
-  };
+  return datesHtml;
+};
+
+
 
   const handleNavClick = (direction) => {
     if (direction === "prev") {

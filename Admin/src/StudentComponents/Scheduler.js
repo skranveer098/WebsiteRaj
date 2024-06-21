@@ -2,29 +2,32 @@ import React, { useState, useEffect, useContext } from 'react';
 import Nav from '../SchedulerComponents/Nav';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import Calender from '../SchedulerComponents/Calender'
+import Calendar from '../SchedulerComponents/Calender';
 import Scroll from '../SchedulerComponents/Scroll';
-import { DateContext } from '../SchedulerComponents/DateContext';
+import { UserContext } from '../ContextApi/UserContext'; // Adjust the path as necessary
 
 const AP = process.env.REACT_APP_API_URL;
 
 const Scheduler = () => {
   const { username } = useParams();
-    const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [scheduleData, setScheduleData] = useState([]);
-  const [studentNotes, setstudentNotes] = useState([]);
-  const { batchId } = useParams();
-   const { clickedDate } = useContext(DateContext);
+  const [joinDate, setJoinDate] = useState(null); // Initialize joinDate state
+  const { user } = useContext(UserContext); // Use useContext hook to access UserContext
   const [studentName, setStudentName] = useState({
     firstName: '',
-    lastName: ''
+    lastName: '',
+    startDate: '',
+    endDate: '',
   });
 
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
         const response = await axios.get(`${AP}/api/student/username/${username}`);
+        console.log(response.data.startDate)
         setStudentName(response.data);
+        setJoinDate(response.data.startDate); // Set joinDate from fetched data
       } catch (error) {
         console.error('Failed to fetch student details:', error);
       }
@@ -35,7 +38,7 @@ const Scheduler = () => {
     }
   }, [username]);
 
-    const fetchScheduleData = async (date) => {
+  const fetchScheduleData = async (date) => {
     try {
       const response = await axios.get(`${AP}/api/schedule/${date}`);
       setScheduleData(response.data);
@@ -44,22 +47,7 @@ const Scheduler = () => {
     }
   };
 
-   useEffect(() => {
-    const fetchStudentNotes = async () => {
-      try {
-        const response = await axios.get(`${AP}/api/batches/${batchId}/schedule/${clickedDate}`);
-        setstudentNotes(response.data.classes);
-      } catch (error) {
-        console.error('Error fetching notes:', error);
-      }
-    };
-
-    if (batchId && clickedDate) {
-      fetchStudentNotes();
-    }
-  }, [batchId, clickedDate]);
-
-    const handleDateClick = (date) => {
+  const handleDateClick = (date) => {
     setSelectedDate(date);
     fetchScheduleData(date);
   };
@@ -69,8 +57,8 @@ const Scheduler = () => {
   return (
     <div>
       <Nav studentName={fullName} panelType="student" />
-      <Calender onDateClick={handleDateClick} />
-      <Scroll showbar={false}/>
+      <Calendar onDateClick={handleDateClick} joiningDate={joinDate} />
+      <Scroll showbar={false} />
     </div>
   );
 };

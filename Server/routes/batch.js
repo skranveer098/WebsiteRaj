@@ -210,7 +210,7 @@ router.get("/:batchId/schedule/:date", async (req, res) => {
     if (scheduleForSingleStudent) {
       res.status(200).send(scheduleForSingleStudent);
     } else {
-      res.status(404).send("No schedule found for the given date in this batch");
+      res.status(201).send("No schedule found for the given date in this batch");
     }
   } catch (err) {
     console.error("Error retrieving schedule for date in batch:", err);

@@ -45,7 +45,7 @@ const HomeDetail = () => {
   }, [username]);
 
   const handleScheduleClick = () => {
-    navigate(`/scheduler/${studentData.batchId}`);
+    navigate(`/${username}/${studentData.batchId}`);
   };
 
   if (error) {
