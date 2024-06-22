@@ -3,15 +3,17 @@ import React, { useState, useEffect } from 'react';
 const EditBatchForm = ({ batch, onEditBatch, onCancel }) => {
   const [name, setName] = useState(batch.name);
   const [description, setDescription] = useState(batch.description);
+  const [startDate, setStartDate] = useState(batch.startDate);
 
   useEffect(() => {
     setName(batch.name);
     setDescription(batch.description);
+    setStartDate(batch.startDate);
   }, [batch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onEditBatch({ ...batch, name, description });
+    onEditBatch({ ...batch, name, description, startDate });
   };
 
   return (
@@ -26,6 +28,16 @@ const EditBatchForm = ({ batch, onEditBatch, onCancel }) => {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+              <div style={styles.formGroup}>
+            <label style={styles.label}>Start Date</label>
+            <input
+              style={styles.input}
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
               required
             />
           </div>

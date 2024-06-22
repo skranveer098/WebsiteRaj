@@ -23,8 +23,8 @@ const studentSchema = new mongoose.Schema({
   emailId: { type: String, required: true },
   username: { type: String, unique: true }, // Add username field
   password: { type: String, required: true }, // Add password field
-  startDate: { type: Date, required: true },
-  endDate: { type: Date, required: true },
+  startDate: { type: String, required: true },
+  endDate: { type: String, required: true },
   batchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Batch', required: true },
   schedule: [scheduleSchema] // Add the schedule field
 });

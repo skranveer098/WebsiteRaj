@@ -11,7 +11,7 @@ function SchedulerHome() {
         <div>
             <Nav />
             <Scroll style={{ display: "inline" }} showbar={true}/>
-            <Calender style={{display:"inline"}} />
+            <Calender style={{ marginTop: "-65vh", position: "absolute"}} />
         </div>
     )
 };

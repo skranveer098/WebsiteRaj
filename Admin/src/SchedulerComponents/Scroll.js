@@ -18,7 +18,8 @@ function SideScroll({ showbar, schedule }) {
   const [newNote, setNewNote] = useState({
     topic: "",
     time: "",
-    professor: ""
+    professor: "",
+    latestClassDate: ""
   });
 
   const [editedNote, setEditedNote] = useState({
@@ -66,7 +67,7 @@ function SideScroll({ showbar, schedule }) {
       };
       const response = await axios.post(
         `${APP}/api/batches/${batchId}/schedule`, 
-        payload
+        [payload]
       );
       
       // Update notes for the current clickedDate only
@@ -74,7 +75,8 @@ function SideScroll({ showbar, schedule }) {
       setNewNote({
         topic: "",
         time: "",
-        professor: ""
+        professor: "",
+        latestClassDate: ""
       });
       
     } catch (error) {

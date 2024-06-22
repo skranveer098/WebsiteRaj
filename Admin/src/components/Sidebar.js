@@ -6,7 +6,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import BatchForm from '../sidebarSection/BatchForm';
 import EditBatchForm from '../sidebarSection/EditBatchForm';
 
-
 const APP = process.env.REACT_APP_API_URL;
 
 const initialNavItems = [
@@ -55,6 +54,7 @@ function Sidebar() {
           href: `/BatchDetail/${batch._id}`,
           label: batch.name,
           description: batch.description,
+          startDate: batch.startDate, // Include startDate
           _id: batch._id,
         }));
         return updatedNavItems;
@@ -64,41 +64,42 @@ function Sidebar() {
     }
   };
 
-const addBatch = async (newBatch) => {
-  try {
-    // Make an asynchronous request to fetch the ID from MongoDB
-    const response = await fetch(`${APP}/api/getObjectId`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newBatch),
-    });
-    window.location.reload(false);
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch object ID');
-    }
-
-    const data = await response.json();
-    const objectId = data._id;
-
-    // Update the state with the new batch and fetched object ID
-    setNavItems((prevNavItems) => {
-      const updatedNavItems = [...prevNavItems];
-      updatedNavItems[1].children.push({
-        ...newBatch,
-        href: `/BatchDetail/${objectId}`,
+  const addBatch = async (newBatch) => {
+    try {
+      // Make an asynchronous request to fetch the ID from MongoDB
+      const response = await fetch(`${APP}/api/getObjectId`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newBatch),
       });
-      return updatedNavItems;
-    });
+      window.location.reload(false);
 
-    setShowForm(false);
-  } catch (error) {
-    console.error('Error adding batch:', error);
-    // Handle error, possibly by showing an error message to the user
-  }
-};
+      if (!response.ok) {
+        throw new Error('Failed to fetch object ID');
+      }
+
+      const data = await response.json();
+      const objectId = data._id;
+
+      // Update the state with the new batch and fetched object ID
+      setNavItems((prevNavItems) => {
+        const updatedNavItems = [...prevNavItems];
+        updatedNavItems[1].children.push({
+          ...newBatch,
+          href: `/BatchDetail/${objectId}`,
+          _id: objectId,
+        });
+        return updatedNavItems;
+      });
+
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error adding batch:', error);
+      // Handle error, possibly by showing an error message to the user
+    }
+  };
 
   const editBatch = async (updatedBatch) => {
     try {

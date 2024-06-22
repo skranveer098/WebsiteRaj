@@ -31,7 +31,7 @@ const StudentLogin = () => {
       console.log('Login response:', response.data);
       localStorage.setItem('token', response.data.token);
       // Redirect to the home page after login and pass username
-      navigate(`/home/${username}`); // Ensure the route is correctly specified
+      navigate(`/${username}`); // Ensure the route is correctly specified
     } catch (error) {
       console.error('Error response:', error.response); // Log the error response
       setError(error.response?.data.message || 'Server error');
