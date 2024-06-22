@@ -10,7 +10,7 @@ const AP = process.env.REACT_APP_API_URL;
 
 const Scheduler = () => {
   const { username } = useParams();
-  const [selectedDate, setSelectedDate] = useState(null);
+  // const [selectedDate, setSelectedDate] = useState(null);
   const [scheduleData, setScheduleData] = useState([]);
   const { batchData } = useContext(BatchContext);
   const [joinDate, setJoinDate] = useState(null); // Initialize joinDate state
@@ -27,7 +27,9 @@ const Scheduler = () => {
         const response = await axios.get(`${AP}/api/student/username/${username}`);
         console.log(response.data.startDate)
         setStudentName(response.data);
-        setJoinDate(response.data.startDate); // Set joinDate from fetched data
+        const joining = new Date(response.data.startDate);
+         joining.setDate(joining.getDate() - 1);
+        setJoinDate(joining.toISOString()); // Set joinDate from fetched data
       } catch (error) {
         console.error('Failed to fetch student details:', error);
       }
@@ -47,10 +49,10 @@ const Scheduler = () => {
     }
   };
 
-  const handleDateClick = (date) => {
-    setSelectedDate(date);
-    fetchScheduleData(date);
-  };
+  // const handleDateClick = (date) => {
+  //   setSelectedDate(date);
+  //   fetchScheduleData(date);
+  // };
 
   const fullName = `${studentName.firstName} ${studentName.lastName}`;
   const date=`${batchData.startDate}`
@@ -58,7 +60,7 @@ const Scheduler = () => {
   return (
     <div>
       <Nav studentName={fullName} panelType="student" />
-      <Calendar onDateClick={handleDateClick} joiningDate={joinDate} batchStartDate={date}/>
+      <Calendar joiningDate={joinDate} batchStartDate={date}/>
       <Scroll showbar={false} />
     </div>
   );

@@ -8,9 +8,9 @@ const Calendar = ({ onDateClick, joiningDate, batchStartDate }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const { setClickedDate } = useContext(DateContext);
 
-  const handleClick = (date) => {
-    onDateClick(date);
-  };
+  // const handleClick = (date) => {
+  //   onDateClick(date);
+  // };
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -21,7 +21,9 @@ const Calendar = ({ onDateClick, joiningDate, batchStartDate }) => {
     const d = new Date(date);
     const s = new Date(start);
     const e = new Date(end);
-    return d >= s && d <= e;
+    e.setDate(e.getDate()); // Adjust the end date to be the day before joiningDate
+
+    return d >= s && d <= e; // Check if date is between start and end
   };
 
   const renderCalendar = () => {
@@ -73,8 +75,6 @@ const Calendar = ({ onDateClick, joiningDate, batchStartDate }) => {
         selectedDate.getFullYear() === year;
 
       const isInRange = isDateInRange(currentDate, batchStartDate, joiningDate);
-      console.log(batchStartDate)
-      console.log(joiningDate)
 
       datesHtml.push(
         <li
@@ -162,7 +162,7 @@ const Calendar = ({ onDateClick, joiningDate, batchStartDate }) => {
     const clickedDate = new Date(year, month, day);
     setSelectedDate(clickedDate);
     setClickedDate(clickedDate);
-    handleClick(clickedDate);
+    // handleClick(clickedDate);
   };
 
   useEffect(() => {
