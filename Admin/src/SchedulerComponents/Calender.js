@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import { DateContext } from './DateContext';
 
-const Calendar = ({ onDateClick, joiningDate }) => {
+const Calendar = ({ onDateClick, joiningDate, batchStartDate }) => {
   const [date, setDate] = useState(new Date());
   const [month, setMonth] = useState(date.getMonth());
   const [year, setYear] = useState(date.getFullYear());
   const [selectedDate, setSelectedDate] = useState(null);
   const { setClickedDate } = useContext(DateContext);
 
-   const handleClick = (date) => {
-    // Call the parent component's callback with the clicked date
+  const handleClick = (date) => {
     onDateClick(date);
   };
 
@@ -18,13 +17,18 @@ const Calendar = ({ onDateClick, joiningDate }) => {
     "July", "August", "September", "October", "November", "December"
   ];
 
+  const isDateInRange = (date, start, end) => {
+    const d = new Date(date);
+    const s = new Date(start);
+    const e = new Date(end);
+    return d >= s && d <= e;
+  };
+
   const renderCalendar = () => {
     const start = new Date(year, month, 1).getDay();
     const endDate = new Date(year, month + 1, 0).getDate();
     const end = new Date(year, month, endDate).getDay();
     const today = new Date();
-    // const currentMonth = today.getMonth();
-    // const currentYear = today.getFullYear();
 
     let datesHtml = [];
 
@@ -61,11 +65,16 @@ const Calendar = ({ onDateClick, joiningDate }) => {
 
     // Current month dates
     for (let i = 1; i <= endDate; i++) {
+      const currentDate = new Date(year, month, i);
       const isSelected =
         selectedDate &&
         selectedDate.getDate() === i &&
         selectedDate.getMonth() === month &&
         selectedDate.getFullYear() === year;
+
+      const isInRange = isDateInRange(currentDate, batchStartDate, joiningDate);
+      console.log(batchStartDate)
+      console.log(joiningDate)
 
       datesHtml.push(
         <li
@@ -83,7 +92,7 @@ const Calendar = ({ onDateClick, joiningDate }) => {
             style={{
               width: "2rem",
               height: "2rem",
-              backgroundColor: isSelected ? "#fff" : "transparent",
+              backgroundColor: isSelected ? "#fff" : isInRange ? "#ffcccc" : "transparent", // Red background for dates in range
               borderRadius: isSelected ? "50%" : "none",
               color: isSelected ? "#000" : "inherit",
               cursor: "pointer",
@@ -153,6 +162,7 @@ const Calendar = ({ onDateClick, joiningDate }) => {
     const clickedDate = new Date(year, month, day);
     setSelectedDate(clickedDate);
     setClickedDate(clickedDate);
+    handleClick(clickedDate);
   };
 
   useEffect(() => {
@@ -163,7 +173,6 @@ const Calendar = ({ onDateClick, joiningDate }) => {
     <div
       style={{
         marginLeft: "60vw",
-        // marginTop: "-65vh",
         position: "absolute",
         width: "98%",
         maxWidth: "380px",

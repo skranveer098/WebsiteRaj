@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { BatchContext } from '../ContextApi/BatchContext';
 
 const AP = process.env.REACT_APP_API_URL;
 
@@ -9,9 +10,11 @@ const HomeDetail = () => {
   const { username } = useParams();
   const navigate = useNavigate();
   const { batchId } = useParams();
+  const { updateBatchData } = useContext(BatchContext);
   const [batchData, setBatchData] = useState({
     name: '',
-    description: ''
+    description: '',
+    startDate: ''
   });
   const [studentData, setStudentData] = useState({
     firstName: '',
@@ -33,6 +36,10 @@ const HomeDetail = () => {
         setStudentData(response.data);
         const batchResponse = await axios.get(`${AP}/api/batches/${response.data.batchId}`);
         setBatchData(batchResponse.data);
+         const { name, description, startDate } = batchResponse.data;
+        updateBatchData(name, description, startDate);
+        console.log(updateBatchData)
+        // console.log(batchResponse.data.startDate)
       } catch (error) {
         console.error('Error fetching student data:', error); // Debug log
         setError('Failed to fetch student details');
@@ -42,7 +49,7 @@ const HomeDetail = () => {
     if (username) {
       fetchStudentData();
     }
-  }, [username]);
+  }, [username,updateBatchData]);
 
   const handleScheduleClick = () => {
     navigate(`/${username}/${studentData.batchId}`);
@@ -66,7 +73,7 @@ const HomeDetail = () => {
             </div>
             <div className="card-body" style={{ backgroundColor: '#f8f9fa' }}>
               <p><strong>Batch Name:</strong> {batchData.name}</p>
-              <p><strong>Start Date:</strong></p>
+              <p><strong>Start Date:</strong>{batchData.startDate}</p>
               <p><strong>End Date:</strong></p>
             </div>
           </div>

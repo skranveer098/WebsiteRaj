@@ -94,16 +94,18 @@ router.post("/:batchId/schedule", async (req, res) => {
           throw new Error(`Invalid date format for classDate: ${classDate}`);
         }
 
-        let updated = false;
+        classes.forEach((newClass) => {
+          let updated = false;
 
-        // Check if there is already a schedule for the parsed date
-        const existingSchedule = student.schedule.find(
-          sch => sch.classDate.toDateString() === parsedDate.toDateString()
-        );
 
-        if (existingSchedule) {
-          // Update existing classes if topic matches
-          classes.forEach((newClass) => {
+          const existingSchedules = student.schedule.find(
+            sch => sch.classDate.toDateString() === parsedDate.toDateString()
+          );
+  
+          
+  
+
+          student.schedule.forEach((existingSchedule) => {
             existingSchedule.classes.forEach((existingClass) => {
               if (existingClass.topic === newClass.topic) {
                 // Update the existing class with new details and latestClassDate
@@ -113,32 +115,30 @@ router.post("/:batchId/schedule", async (req, res) => {
                 updated = true;
               }
             });
+          });
 
-            // If no existing class matched, add a new class entry
-            if (!updated) {
-              existingSchedule.classes.push({
-                topic: newClass.topic,
-                time: newClass.time,
-                professor: newClass.professor,
-                latestClassDate: parsedDate
-              });
-            }
-          });
-        } else {
-          // If no schedule found for the date, add a new schedule entry
-          student.schedule.push({
-            classDate: parsedDate,
-            classes: classes.map((newClass) => ({
-              topic: newClass.topic,
-              time: newClass.time,
-              professor: newClass.professor,
-              latestClassDate: parsedDate
-            }))
-          });
-        }
+          // Add a new class entry
+
+          if (existingSchedules) {
+            existingSchedules.classes = classes;
+          } else {
+            student.schedule.push({
+              classDate: parsedDate,
+              classes: [
+                {
+                  topic: newClass.topic,
+                  time: newClass.time,
+                  professor: newClass.professor,
+                  latestClassDate: parsedDate
+                }
+              ]
+            });
+          }
+        });
+
+          
       });
 
-      // Save the updated student with new schedules
       await student.save();
     }
 
@@ -271,6 +271,27 @@ router.delete('/:batchId/schedule', async (req, res) => {
     console.error('Error deleting all schedules in batch:', err);
     res.status(500).send(err);
   }
+});
+
+router.put('/:batchId/schedule/:classDate/:classId', (req, res) => {
+    const { batchId, classDate, classId } = req.params;
+    const { topic, time, professor } = req.body;
+
+    if (!scheduleData[batchId] || !scheduleData[batchId][classDate]) {
+        return res.status(404).json({ error: 'Schedule not found' });
+    }
+
+    const updatedNote = scheduleData[batchId][classDate].find(note => note._id === classId);
+
+    if (!updatedNote) {
+        return res.status(404).json({ error: 'Note not found' });
+    }
+
+    updatedNote.topic = topic;
+    updatedNote.time = time;
+    updatedNote.professor = professor;
+
+    res.json(updatedNote);
 });
 
 // Delete a particular class from the schedule of all students in a batch on a specific date

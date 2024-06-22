@@ -3,8 +3,8 @@ import Nav from '../SchedulerComponents/Nav';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import Calendar from '../SchedulerComponents/Calender';
-import Scroll from '../SchedulerComponents/Scroll';
-import { UserContext } from '../ContextApi/UserContext'; // Adjust the path as necessary
+import { BatchContext } from '../ContextApi/BatchContext'
+import Scroll from '../SchedulerComponents/Scroll'; // Adjust the path as necessary
 
 const AP = process.env.REACT_APP_API_URL;
 
@@ -12,8 +12,8 @@ const Scheduler = () => {
   const { username } = useParams();
   const [selectedDate, setSelectedDate] = useState(null);
   const [scheduleData, setScheduleData] = useState([]);
+  const { batchData } = useContext(BatchContext);
   const [joinDate, setJoinDate] = useState(null); // Initialize joinDate state
-  const { user } = useContext(UserContext); // Use useContext hook to access UserContext
   const [studentName, setStudentName] = useState({
     firstName: '',
     lastName: '',
@@ -53,11 +53,12 @@ const Scheduler = () => {
   };
 
   const fullName = `${studentName.firstName} ${studentName.lastName}`;
+  const date=`${batchData.startDate}`
 
   return (
     <div>
       <Nav studentName={fullName} panelType="student" />
-      <Calendar onDateClick={handleDateClick} joiningDate={joinDate} />
+      <Calendar onDateClick={handleDateClick} joiningDate={joinDate} batchStartDate={date}/>
       <Scroll showbar={false} />
     </div>
   );
