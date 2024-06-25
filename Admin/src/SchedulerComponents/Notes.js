@@ -11,7 +11,7 @@ const NotesParent = ({ notes }) => {
                         noteTitle={note.topic}
                         noteDate={note.time}
                         noteContent={note.professor}
-                        // noteDate={note.latestClassDate}
+                        noteClass={note.latestClassDate}
                     />
                 ))):(<h1 style={{ textAlign: 'center', width: '100%' }}>No Schedule Yet</h1>)}
             </div>
