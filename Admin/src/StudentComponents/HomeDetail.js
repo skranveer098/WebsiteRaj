@@ -74,7 +74,6 @@ const HomeDetail = () => {
             <div className="card-body" style={{ backgroundColor: '#f8f9fa' }}>
               <p><strong>Batch Name:</strong> {batchData.name}</p>
               <p><strong>Start Date:</strong>{batchData.startDate}</p>
-              <p><strong>End Date:</strong></p>
             </div>
           </div>
         </div>
