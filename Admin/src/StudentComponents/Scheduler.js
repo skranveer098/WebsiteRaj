@@ -60,8 +60,10 @@ const Scheduler = () => {
   return (
     <div>
       <Nav studentName={fullName} panelType="student" />
+      <div style={{display:"flex", flexWrap:"wrap"}}>
       <Calendar joiningDate={joinDate} batchStartDate={date}/>
-      <Scroll showbar={false} />
+        <Scroll showbar={false} />
+        </div>
     </div>
   );
 };

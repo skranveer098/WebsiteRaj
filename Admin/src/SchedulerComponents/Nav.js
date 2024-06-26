@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
-
 const APP = process.env.REACT_APP_API_URL;
 
-function Nav({ panelType,studentName }) {
-   const panelTitle = panelType === 'student' ? 'Student Panel' : 'Admin Panel';
+function Nav({ panelType, studentName }) {
+  const panelTitle = panelType === 'student' ? 'Student Panel' : 'Admin Panel';
   const panelItems = panelType === 'student' 
     ? ['Home', 'Class Schedule', 'Profile'] // Example student-specific items
     : ['Dashboard', 'Users', 'Settings']; // Example admin-specific items
@@ -57,13 +56,14 @@ function Nav({ panelType,studentName }) {
     transition: 'background-color 0.3s ease',
     display: 'flex',
     alignItems: 'center',
-    fontWeight: 'bold', // Added to make the text bold
+    fontWeight: 'bold',
   };
 
   const leftyStyle = {
     fontWeight: 'bold',
     display: 'flex',
     alignItems: 'center',
+    cursor: panelType === 'student' ? 'default' : 'pointer', // Set cursor to default for student panel
   };
 
   const rightyStyle = {
@@ -74,12 +74,16 @@ function Nav({ panelType,studentName }) {
   return (
     <div style={navbarStyle}>
       <div style={leftyStyle}>
-        <Link to={`/BatchDetail/${batchId}`} style={{ ...adminPanelStyle, backgroundColor: '#fff', color: '#000' }}>{batch.name}</Link>
+        {panelType === 'student' ? (
+          <div style={{ ...adminPanelStyle, backgroundColor: '#fff', color: '#000' }}>{batch.name}</div>
+        ) : (
+          <Link to={`/BatchDetail/${batchId}`} style={{ ...adminPanelStyle, backgroundColor: '#fff', color: '#000' }}>{batch.name}</Link>
+        )}
       </div>
       <div style={{ flex: 1, textAlign: 'center' }}>
-        <Link to="/admin/home" style={{ ...adminPanelStyle, marginLeft: '35vw', fontSize: '30px' }}>
+        <div style={{ ...adminPanelStyle, marginLeft: '35vw', fontSize: '30px' }}>
           {panelTitle}
-        </Link>
+        </div>
       </div>
       <div style={rightyStyle}>
         <svg
