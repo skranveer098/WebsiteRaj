@@ -24,7 +24,7 @@ const Scheduler = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get(`${AP}/api/student/username/${username}`);
+        const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/student/username/${username}`);
         console.log(response.data.startDate)
         setStudentName(response.data);
         const joining = new Date(response.data.startDate);

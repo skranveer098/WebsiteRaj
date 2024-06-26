@@ -31,10 +31,10 @@ const HomeDetail = () => {
     console.log('Fetching data for username:', username); // Debug log
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get(`${AP}/api/student/username/${username}`);
+        const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/student/username/${username}`);
         console.log('Fetched student data:', response.data); // Debug log
         setStudentData(response.data);
-        const batchResponse = await axios.get(`${AP}/api/batches/${response.data.batchId}`);
+        const batchResponse = await axios.get(`coachify-crm-kx1p.vercel.app/api/batches/${response.data.batchId}`);
         setBatchData(batchResponse.data);
         const { name, description, startDate } = batchResponse.data;
         updateBatchData(name, description, startDate);
