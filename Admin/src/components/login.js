@@ -37,13 +37,13 @@ function Login({ hideCreateAccountButton = false }) {
     try {
       let response;
       if (isLogin) {
-        response = await axios.post(`${AP}/api/auth/login`, { username, password });
+        response = await axios.post(`coachify-crm-kx1p.vercel.app/api/auth/login`, { username, password });
         console.log('Login response:', response.data);
         localStorage.setItem('token', response.data.token);
         // Set the user context with the retrieved user data
         setUser({ username: response.data.username, email: response.data.email });
       } else {
-        response = await axios.post(`${AP}/api/auth/register`, { name, email, username, password });
+        response = await axios.post(`coachify-crm-kx1p.vercel.app/api/auth/register`, { name, email, username, password });
         console.log('Registration response:', response.data);
         localStorage.setItem('token', response.data.token);
         // Set the user context with the retrieved user data

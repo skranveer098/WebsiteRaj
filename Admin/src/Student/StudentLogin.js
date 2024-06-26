@@ -27,7 +27,7 @@ const StudentLogin = () => {
   const { username, password } = formData;
 
   try {
-    const response = await axios.post(`${AP}/api/auth/student_login`, { username, password });
+    const response = await axios.post(`coachify-crm-kx1p.vercel.app/api/auth/student_login`, { username, password });
     console.log('Login response:', response.data);
     localStorage.setItem('token', response.data.token);
 
