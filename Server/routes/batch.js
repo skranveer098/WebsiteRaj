@@ -8,14 +8,20 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   try {
     console.log('Request body:', req.body);
-    const { name, description,startDate } = req.body;
-    const batch = await new Batch({ name, description,startDate, object: [] }).save();
+    let { name, description, startDate } = req.body;
+    
+    // Replace spaces and slashes with underscores in the name
+    name = name.replace(/[\/\s]+/g, '_');
+
+    const batch = await new Batch({ name, description, startDate, object: [] }).save();
     res.status(201).send(batch);
   } catch (err) {
     console.error('Error creating batch:', err.message);
     res.status(400).send({ error: err.message });
   }
 });
+
+
 
 // Get all batches
 router.get('/', async (req, res) => {

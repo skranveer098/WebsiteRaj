@@ -8,7 +8,6 @@ const AP = process.env.REACT_APP_API_URL;
 
 const HomeDetail = () => {
   const { username } = useParams();
-  const decodedUsername = decodeURIComponent(username); // Decode username from URL
   const navigate = useNavigate();
   const { batchId } = useParams();
   const { updateBatchData } = useContext(BatchContext);
@@ -29,10 +28,10 @@ const HomeDetail = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log('Fetching data for username:', decodedUsername); // Debug log
+    console.log('Fetching data for username:', username); // Debug log
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get(`${AP}/api/student/username/${decodedUsername}`);
+        const response = await axios.get(`${AP}/api/student/username/${username}`);
         console.log('Fetched student data:', response.data); // Debug log
         setStudentData(response.data);
         const batchResponse = await axios.get(`${AP}/api/batches/${response.data.batchId}`);
@@ -45,16 +44,14 @@ const HomeDetail = () => {
       }
     };
 
-    if (decodedUsername) {
-      console.log('Decoded username:', decodedUsername);
-
+    if (username) {
+      console.log('Username:', username);
       fetchStudentData();
     }
-  }, [decodedUsername, updateBatchData]);
+  }, [username, updateBatchData]);
 
   const handleScheduleClick = () => {
-    const encodedUsername = encodeURIComponent(decodedUsername);
-    navigate(`/${encodedUsername}/${studentData.batchId}`);
+    navigate(`/${username}/${studentData.batchId}`);
   };
 
   if (error) {
@@ -76,7 +73,6 @@ const HomeDetail = () => {
             <div className="card-body" style={{ backgroundColor: '#f8f9fa' }}>
               <p><strong>Batch Name:</strong> {batchData.name}</p>
               <p><strong>Start Date:</strong> {batchData.startDate}</p>
-              <p><strong>End Date:</strong></p>
             </div>
           </div>
         </div>
