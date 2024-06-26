@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import NotesParent from './Notes';
 import { useParams } from 'react-router-dom';
@@ -63,28 +64,23 @@ function SideScroll({ showbar, schedule }) {
     setModalType('delete');
   };
 
-  const convertToIST = (utcDateStr) => {
-    const utcDate = new Date(utcDateStr);
-    if (isNaN(utcDate)) {
-      console.error('Invalid date:', utcDateStr);
-      return utcDateStr; // or return a default value or throw an error
-    }
-    const istOffset = 5.5 * 60 * 60 * 1000; // 5.5 hours in milliseconds
-    const istDate = new Date(utcDate.getTime() + istOffset);
-    console.log(istDate.toISOString().slice(0, 19).replace('T', ' ') + ' IST')
-    return istDate.toISOString().slice(0, 19).replace('T', ' ') + ' IST';
-  };
+  // const convertToIST = (utcDateStr) => {
+  //   const utcDate = new Date(utcDateStr);
+  //   if (isNaN(utcDate)) {
+  //     console.error('Invalid date:', utcDateStr);
+  //     return utcDateStr; // or return a default value or throw an error
+  //   }
+  //   const istOffset = 5.5 * 60 * 60 * 1000; // 5.5 hours in milliseconds
+  //   const istDate = new Date(utcDate.getTime() + istOffset);
+  //   console.log(istDate.toISOString().slice(0, 19).replace('T', ' ') + ' IST')
+  //   return istDate.toISOString().slice(0, 19).replace('T', ' ') + ' IST';
+  // };
 
   const handleAddNote = async () => {
     try {
-
-         const newNoteWithISTDate = {
-        ...newNote,
-        latestClassDate: convertToIST(newNote.latestClassDate)
-      };
       const payload = {
         classDate: clickedDate,
-        classes: [newNoteWithISTDate]
+        classes: [newNote]
       };
       const response = await axios.post(
         `${APP}/api/batches/${batchId}/schedule`, 
@@ -96,14 +92,14 @@ function SideScroll({ showbar, schedule }) {
       setNewNote({
         topic: "",
         time: "",
-        professor: "",
-        latestClassDate: ""
+        professor: ""
       });
       
     } catch (error) {
       console.error('Error adding note:', error);
     }
-    setModalType(null); // Close modal after adding
+    setModalType(false);
+    window.location.reload();
   };
 
   const handleDeleteNote = async () => {
@@ -125,47 +121,55 @@ function SideScroll({ showbar, schedule }) {
     setModalType(null); // Close modal after deleting
   };
 
-const handleEditNote = async () => {
+  const handleEditNote = async () => {
     if (selectedNoteIndex !== null) {
-        const noteToEdit = notes[selectedNoteIndex];
-        const classId = noteToEdit._id;
-
-        // Check if clickedDate is valid
-        if (!clickedDate) {
-            console.error('clickedDate is null or undefined');
-            return;
-        }
-
-        try {
-            const payload = {
-                topic: editedNote.topic,
-                time: editedNote.time,
-                professor: editedNote.professor,
-                latestClassDate: clickedDate
-            };
-
-            // Sending payload directly as an object
-            const response = await axios.put(`${APP}/api/batches/${batchId}/schedule/${clickedDate}/${classId}`, payload);
-            console.log('Note edited:', response.data);
-
-            // Update the notes array with the edited note
-            const updatedNotes = notes.map((note, index) =>
-                index === selectedNoteIndex ? response.data : note
-            );
-            setNotes(updatedNotes);
-            setSelectedNoteIndex(null);
-            setEditedNote({
-                topic: "",
-                time: "",
-                professor: ""
-            });
-        } catch (error) {
-            console.error('Error editing note:', error);
-        }
+      const noteToEdit = notes[selectedNoteIndex];
+      const classId = noteToEdit._id;
+  
+      // Check if clickedDate is valid
+      if (!clickedDate) {
+        console.error('clickedDate is null or undefined');
+        return;
+      }
+  
+      try {
+        const payload = {
+          topic: editedNote.topic,
+          time: editedNote.time,
+          professor: editedNote.professor,
+          latestClassDate: clickedDate
+        };
+  
+        // Ensure clickedDate is formatted correctly for the URL
+        const localDate = new Date(clickedDate);
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, '0');
+        const day = String(localDate.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+  
+        const response = await axios.put(`${APP}/api/batches/${batchId}/schedule/${formattedDate}/${classId}`, payload);
+        console.log('Note edited:', response.data);
+  
+        // Update the notes array with the edited note
+        const updatedNotes = notes.map((note, index) =>
+          index === selectedNoteIndex ? { ...note, ...payload } : note
+        );
+        setNotes(updatedNotes);
+        setSelectedNoteIndex(null);
+        setEditedNote({
+          topic: "",
+          time: "",
+          professor: ""
+        });
+      } catch (error) {
+        console.error('Error editing note:', error);
+      }
     }
     setModalType(null); // Close modal after editing
-};
-
+  };
+  
+  
+  
 
 
   const modalRef = useRef();

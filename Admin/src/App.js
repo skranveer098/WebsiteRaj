@@ -14,12 +14,14 @@ import StudentLogin from './Student/StudentLogin';
 import StudentHome from './Student/StudentHome';
 import ScheduleHome from './Scheduler/SchedulerHome';
 import { DateProvider } from './SchedulerComponents/DateContext';
+import { UserProvider } from './ContextApi/UserContext';
 // import { UserProvider } from './ContextApi//UserContext'; // Import UserProvider
 import Scheduler from './StudentComponents/Scheduler';
 import { BatchProvider } from './ContextApi/BatchContext';
 
 const App = () => {
   return (
+    <UserProvider>
     <BatchProvider> {/* Wrap your Routes with UserProvider */}
       <DateProvider> {/* Wrap your Routes with DateProvider */}
         <Routes>
@@ -27,13 +29,14 @@ const App = () => {
           <Route path="/:username" element={<StudentHome />} />
           <Route path="/:username/:batchId" element={<Scheduler />} />
           <Route path="/admin" element={<Login />} />
-          <Route path="/admin/home" element={<Home />} />
+          <Route path="/admin/:username" element={<Home />} />
           <Route path="/ProfilePage" element={<ProfilePage />} />
           <Route path="/BatchDetail/:batchId" element={<BatchDetail />} />
           <Route path="/schedule/:batchId" element={<ScheduleHome />} />
         </Routes>
       </DateProvider>
-    </BatchProvider>
+      </BatchProvider>
+      </UserProvider>
   );
 }
 

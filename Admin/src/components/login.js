@@ -4,6 +4,7 @@ import '../style.css';
 import logo from '../img/coachifylogo.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useUser } from '../ContextApi/UserContext'; // Adjust the import path as needed
 
 const AP = process.env.REACT_APP_API_URL;
 
@@ -15,6 +16,7 @@ function Login({ hideCreateAccountButton = false }) {
     username: '',
     password: ''
   });
+  const { setUser } = useUser();
   const navigate = useNavigate();
 
   const toggleForm = () => {
@@ -28,24 +30,27 @@ function Login({ hideCreateAccountButton = false }) {
     });
   };
 
-   // Replace with your backend server URL
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     const { name, email, username, password } = formData;
 
     try {
+      let response;
       if (isLogin) {
-        const response = await axios.post(`${AP}/api/auth/login`, { username, password });
+        response = await axios.post(`${AP}/api/auth/login`, { username, password });
         console.log('Login response:', response.data);
         localStorage.setItem('token', response.data.token);
+        // Set the user context with the retrieved user data
+        setUser({ username: response.data.username, email: response.data.email });
       } else {
-        const response = await axios.post(`${AP}/api/auth/register`, { name, email, username, password });
+        response = await axios.post(`${AP}/api/auth/register`, { name, email, username, password });
         console.log('Registration response:', response.data);
         localStorage.setItem('token', response.data.token);
+        // Set the user context with the retrieved user data
+        setUser({ name, email, username });
       }
-      // Redirect to the home page after form submission
-      navigate('/admin/home'); // Ensure the route is correctly specified
+      // Redirect to the path including the username
+      navigate(`/admin/${username}`);
     } catch (error) {
       console.error('Error response:', error.response); // Log the error response
       alert(error.response?.data.msg || 'Server error');

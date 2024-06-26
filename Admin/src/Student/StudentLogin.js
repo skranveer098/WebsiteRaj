@@ -23,20 +23,23 @@ const StudentLogin = () => {
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    const { username, password } = formData;
+  event.preventDefault();
+  const { username, password } = formData;
 
-    try {
-      const response = await axios.post(`${AP}/api/auth/student_login`, { username, password });
-      console.log('Login response:', response.data);
-      localStorage.setItem('token', response.data.token);
-      // Redirect to the home page after login and pass username
-      navigate(`/${username}`); // Ensure the route is correctly specified
-    } catch (error) {
-      console.error('Error response:', error.response); // Log the error response
-      setError(error.response?.data.message || 'Server error');
-    }
-  };
+  try {
+    const response = await axios.post(`${AP}/api/auth/student_login`, { username, password });
+    console.log('Login response:', response.data);
+    localStorage.setItem('token', response.data.token);
+
+    // Encode username for URL navigation
+    const encodedUsername = encodeURIComponent(username);
+    console.log(encodedUsername)
+    navigate(`/${encodedUsername}`); // Ensure the route is correctly specified
+  } catch (error) {
+    console.error('Error response:', error.response); // Log the error response
+    setError(error.response?.data.message || 'Server error');
+  }
+};
 
   return (
     <div className="container">

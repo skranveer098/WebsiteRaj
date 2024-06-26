@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import '../style.css';
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import logo from '../img/coachifylogo.png';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // Ensure Bootstrap JS is included
-
+import { useUser } from '../ContextApi/UserContext';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const APP = process.env.REACT_APP_API_URL;
 
 function Header({ title, showNotifications }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [profileName, setProfileName] = useState('');
+  const { user, setUser } = useUser();
+  const { username } = useParams();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -31,29 +33,39 @@ function Header({ title, showNotifications }) {
   ];
 
   useEffect(() => {
-       // Fetch the user's profile
     const fetchProfileName = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No auth token found in localStorage');
+        return;
+      }
+
       try {
-        const response = await fetch(`${APP}/api/profile`, {
+        const response = await axios.get(`${APP}/api/profile/${username}`, {
           headers: {
-            'x-auth-token': localStorage.getItem('token'), // Assuming you store the token in localStorage
+            'Authorization': `Bearer ${token}` // Assuming you store the token in localStorage
           },
         });
 
-        if (!response.ok) {
+        if (!response.data) {
           throw new Error('Network response was not ok');
         }
 
-        const data = await response.json();
-        setProfileName(data.name); // Assuming the response has a 'name' field
+        // Update the user context with the fetched profile name
+        setUser((prevUser) => ({
+          ...prevUser,
+          name: response.data.name, // Assuming the response has a 'name' field
+        }));
+        console.log(response.data.name);
       } catch (err) {
         console.error('Error fetching profile:', err);
       }
     };
 
-
-    fetchProfileName();
-  }, []);
+    if (!user.name) {
+      fetchProfileName();
+    }
+  }, [user.name, setUser]);
 
   return (
     <header id="header" className={`header fixed-top d-flex align-items-center ${sidebarOpen ? 'sidebar-open' : ''}`}>
@@ -91,12 +103,12 @@ function Header({ title, showNotifications }) {
 
               <li className="nav-item dropdown pe-3">
                 <a className="nav-link nav-profile dropdown-toggle d-flex align-items-center pe-0" href="#" id="navbarDropdownProfile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <img src="assets/img/profile-img.jpg" alt="Profile" className="rounded-circle" />
-                  <span className="d-none d-md-block ps-2">{profileName}</span>
+                  <img src="assets/img/profile-img.jpg" className="rounded-circle" />
+                  <span className="d-none d-md-block ps-2">{user.name || 'Loading...'}</span>
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownProfile">
                   <li className="dropdown-header">
-                    <h6>{profileName}</h6>
+                    <h6>{user.name || 'Loading...'}</h6>
                     <span>Web Developer</span>
                   </li>
                   <li><hr className="dropdown-divider" /></li>
