@@ -1,3 +1,4 @@
+
 const express = require('express');
 const Batch = require('../models/Batch');
 const Student = require('../models/Student');
@@ -76,16 +77,25 @@ router.post("/:batchId/schedule", async (req, res) => {
     const { batchId } = req.params;
     const schedules = req.body;
 
+    // Find the batch by ID
     const batch = await Batch.findById(batchId);
     if (!batch) {
       return res.status(404).send("Batch not found");
     }
 
-    for (const studentId of batch.object) {
+    // Ensure batch.object is iterable (assuming it's an array of student IDs)
+    const studentIds = batch.object;
+    if (!Array.isArray(studentIds)) {
+      return res.status(400).send("Invalid students format in batch");
+    }
+
+    // Process each student in the batch
+    for (const studentId of studentIds) {
+      // Find student by ID
       const student = await Student.findById(studentId);
+      if (!student) continue; // Skip if student not found
 
-      if (!student) continue;
-
+      // Process each schedule in the schedules array
       schedules.forEach((schedule) => {
         const { classDate, classes } = schedule;
         const parsedDate = new Date(classDate);
@@ -95,50 +105,59 @@ router.post("/:batchId/schedule", async (req, res) => {
         }
 
         classes.forEach((newClass) => {
-          let updated = false;
+          let existingClassFound = false;
 
-
-          const existingSchedules = student.schedule.find(
+          // Check if there is an existing schedule for the parsed date
+          let existingSchedule = student.schedule.find(
             sch => sch.classDate.toDateString() === parsedDate.toDateString()
           );
-  
-          
-  
 
-          student.schedule.forEach((existingSchedule) => {
+          if (existingSchedule) {
+            // Update or add classes to the existing schedule
             existingSchedule.classes.forEach((existingClass) => {
               if (existingClass.topic === newClass.topic) {
-                // Update the existing class with new details and latestClassDate
                 existingClass.time = newClass.time;
                 existingClass.professor = newClass.professor;
                 existingClass.latestClassDate = parsedDate;
-                updated = true;
+                existingClassFound = true;
+              }
+            });
+
+            if (!existingClassFound) {
+              existingSchedule.classes.push({
+                topic: newClass.topic,
+                time: newClass.time,
+                professor: newClass.professor,
+                latestClassDate: parsedDate
+              });
+            }
+          } else {
+            // Create a new schedule entry if no existing schedule is found for the date
+            student.schedule.push({
+              classDate: parsedDate,
+              classes: [{
+                topic: newClass.topic,
+                time: newClass.time,
+                professor: newClass.professor,
+                latestClassDate: parsedDate
+              }]
+            });
+          }
+
+          // Update previous entries with the new class details
+          student.schedule.forEach((existingSchedule) => {
+            existingSchedule.classes.forEach((existingClass) => {
+              if (existingClass.topic === newClass.topic && existingClass.latestClassDate < parsedDate) {
+                existingClass.time = newClass.time;
+                existingClass.professor = newClass.professor;
+                existingClass.latestClassDate = parsedDate;
               }
             });
           });
-
-          // Add a new class entry
-
-          if (existingSchedules) {
-            existingSchedules.classes = classes;
-          } else {
-            student.schedule.push({
-              classDate: parsedDate,
-              classes: [
-                {
-                  topic: newClass.topic,
-                  time: newClass.time,
-                  professor: newClass.professor,
-                  latestClassDate: parsedDate
-                }
-              ]
-            });
-          }
         });
-
-          
       });
 
+      // Save the student object after updating schedules
       await student.save();
     }
 
@@ -148,6 +167,67 @@ router.post("/:batchId/schedule", async (req, res) => {
     res.status(500).send(err.message);
   }
 });
+
+
+// Editing the batch
+router.put("/:batchId/schedule/:classDate/:classId", async (req, res) => {
+  try {
+    const { batchId, classDate, classId } = req.params;
+    const { topic, time, professor, latestClassDate } = req.body;
+
+    console.log(`Received PUT request with batchId: ${batchId}, classDate: ${classDate}, classId: ${classId}`);
+
+    // Find the batch by ID
+    const batch = await Batch.findById(batchId);
+    if (!batch) {
+      return res.status(404).send("Batch not found");
+    }
+
+    // Ensure batch.object is iterable (assuming it's an array of student IDs)
+    const studentIds = batch.object;
+    if (!Array.isArray(studentIds)) {
+      return res.status(400).send("Invalid students format in batch");
+    }
+
+    const parsedDate = new Date(classDate);
+    if (isNaN(parsedDate)) {
+      return res.status(400).send("Invalid classDate format");
+    }
+
+    for (const studentId of studentIds) {
+      const student = await Student.findById(studentId);
+      if (!student) continue;
+
+      let existingSchedule = student.schedule.find(
+        sch => new Date(sch.classDate).toDateString() === parsedDate.toDateString()
+      );
+
+      if (existingSchedule) {
+        const classIndex = existingSchedule.classes.findIndex(c => c._id.toString() === classId);
+        if (classIndex !== -1) {
+          existingSchedule.classes[classIndex].topic = topic;
+          existingSchedule.classes[classIndex].time = time;
+          existingSchedule.classes[classIndex].professor = professor;
+          existingSchedule.classes[classIndex].latestClassDate = new Date(latestClassDate);
+        } else {
+          return res.status(404).send("Class not found in schedule");
+        }
+      } else {
+        return res.status(404).send("Schedule not found for the given date");
+      }
+
+      await student.save();
+    }
+
+    res.status(200).send("Schedule updated for all students in the batch");
+  } catch (err) {
+    console.error("Error editing schedule for batch:", err);
+    res.status(500).send(`Internal Server Error: ${err.message}`);
+  }
+});
+
+
+
 
 router.get('/:batchId/schedules', async (req, res) => {
   try {
