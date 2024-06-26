@@ -6,7 +6,6 @@ import Calendar from '../SchedulerComponents/Calender';
 import { BatchContext } from '../ContextApi/BatchContext'
 import Scroll from '../SchedulerComponents/Scroll'; // Adjust the path as necessary
 
-const AP = process.env.REACT_APP_API_URL;
 
 const Scheduler = () => {
   const { username } = useParams();
@@ -24,7 +23,7 @@ const Scheduler = () => {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/student/username/${username}`);
+        const response = await axios.get(`https://website-raj.vercel.app/api/student/username/${username}`);
         console.log(response.data.startDate)
         setStudentName(response.data);
         const joining = new Date(response.data.startDate);
@@ -42,7 +41,7 @@ const Scheduler = () => {
 
   const fetchScheduleData = async (date) => {
     try {
-      const response = await axios.get(`${AP}/api/schedule/${date}`);
+      const response = await axios.get(`https://website-raj.vercel.app/api/schedule/${date}`);
       setScheduleData(response.data);
     } catch (error) {
       console.error('Failed to fetch schedule:', error);

@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BatchContext } from '../ContextApi/BatchContext';
 
-const AP = process.env.REACT_APP_API_URL;
 
 const HomeDetail = () => {
   const { username } = useParams();
@@ -31,10 +30,10 @@ const HomeDetail = () => {
     console.log('Fetching data for username:', username); // Debug log
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/student/username/${username}`);
+        const response = await axios.get(`https://website-raj.vercel.app/api/student/username/${username}`);
         console.log('Fetched student data:', response.data); // Debug log
         setStudentData(response.data);
-        const batchResponse = await axios.get(`coachify-crm-kx1p.vercel.app/api/batches/${response.data.batchId}`);
+        const batchResponse = await axios.get(`https://website-raj.vercel.app/api/batches/${response.data.batchId}`);
         setBatchData(batchResponse.data);
         const { name, description, startDate } = batchResponse.data;
         updateBatchData(name, description, startDate);

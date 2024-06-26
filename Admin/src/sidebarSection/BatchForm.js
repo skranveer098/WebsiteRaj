@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const APP = process.env.REACT_APP_API_URL;
 
 function BatchForm({ onAddBatch, onEditBatch, onCancel, isEditMode, batchToEdit }) {
   const [batchName, setBatchName] = useState('');
@@ -26,10 +25,10 @@ function BatchForm({ onAddBatch, onEditBatch, onCancel, isEditMode, batchToEdit 
     };
     try {
       if (isEditMode) {
-        await axios.put(`coachify-crm-kx1p.vercel.app/api/batches/${batchToEdit._id}`, newBatch);
+        await axios.put(`https://website-raj.vercel.app/api/batches/${batchToEdit._id}`, newBatch);
         onEditBatch({ ...batchToEdit, label: batchName, description: batchDescription, startDate: batchStartDate });
       } else {
-        const response = await axios.post(`coachify-crm-kx1p.vercel.app/api/batches`, newBatch);
+        const response = await axios.post(`https://website-raj.vercel.app/api/batches`, newBatch);
         onAddBatch({ href: '/BatchDetail', label: batchName, description: batchDescription, startDate: batchStartDate });
         setBatchName('');
         setBatchDescription('');

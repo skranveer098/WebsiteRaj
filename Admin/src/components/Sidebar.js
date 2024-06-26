@@ -6,7 +6,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import BatchForm from '../sidebarSection/BatchForm';
 import EditBatchForm from '../sidebarSection/EditBatchForm';
 
-const APP = process.env.REACT_APP_API_URL;
 
 const initialNavItems = [
   {
@@ -46,7 +45,7 @@ function Sidebar() {
 
   const fetchBatches = async () => {
     try {
-      const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/batches`);
+      const response = await axios.get(`https://website-raj.vercel.app/api/batches`);
       const batches = response.data;
       setNavItems((prevNavItems) => {
         const updatedNavItems = [...prevNavItems];
@@ -67,7 +66,7 @@ function Sidebar() {
   const addBatch = async (newBatch) => {
     try {
       // Make an asynchronous request to fetch the ID from MongoDB
-      const response = await fetch(`coachify-crm-kx1p.vercel.app/api/getObjectId`, {
+      const response = await fetch(`https://website-raj.vercel.app/api/getObjectId`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +102,7 @@ function Sidebar() {
 
   const editBatch = async (updatedBatch) => {
     try {
-      await axios.put(`coachify-crm-kx1p.vercel.app/api/batches/${updatedBatch._id}`, updatedBatch);
+      await axios.put(`https://website-raj.vercel.app/api/batches/${updatedBatch._id}`, updatedBatch);
       setNavItems((prevNavItems) => {
         const updatedNavItems = [...prevNavItems];
         const batchIndex = updatedNavItems[1].children.findIndex(
@@ -124,7 +123,7 @@ function Sidebar() {
 
   const removeBatch = async (batchId) => {
     try {
-      await axios.delete(`coachify-crm-kx1p.vercel.app/api/batches/${batchId}`);
+      await axios.delete(`https://website-raj.vercel.app/api/batches/${batchId}`);
       setNavItems((prevNavItems) => {
         const updatedNavItems = [...prevNavItems];
         updatedNavItems[1].children = updatedNavItems[1].children.filter(

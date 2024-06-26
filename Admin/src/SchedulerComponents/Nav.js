@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const APP = process.env.REACT_APP_API_URL;
 
 function Nav({ panelType, studentName }) {
   const panelTitle = panelType === 'student' ? 'Student Panel' : 'Admin Panel';
@@ -20,7 +19,7 @@ function Nav({ panelType, studentName }) {
 
     const fetchBatchDetails = async () => {
       try {
-        const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/batches/${batchId}`);
+        const response = await axios.get(`https://website-raj.vercel.app/api/batches/${batchId}`);
         console.log(response.data);
         setBatch(response.data);
       } catch (error) {

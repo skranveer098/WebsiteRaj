@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const APP = process.env.REACT_APP_API_URL;
 
 const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
     const [student, setStudent] = useState({
@@ -35,12 +34,12 @@ const StudentDetail = ({ onAddStudent, onClose, studentToEdit, batchId }) => {
         try {
             if (studentToEdit) {
                 // Edit student
-                await axios.put(`coachify-crm-kx1p.vercel.app/api/student/${studentToEdit._id}`, student);
+                await axios.put(`https://website-raj.vercel.app/api/student/${studentToEdit._id}`, student);
                 setStudent(prevStudents => prevStudents.map(s => s._id === studentToEdit._id ? student : s));
                 window.location.reload()
             } else {
                 // Add new student
-                const response = await axios.post(`coachify-crm-kx1p.vercel.app/api/student`, student);
+                const response = await axios.post(`https://website-raj.vercel.app/api/student`, student);
                 onAddStudent(response.data);
                 window.location.reload(false);
             }

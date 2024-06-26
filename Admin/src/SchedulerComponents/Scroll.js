@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { DateContext } from './DateContext';
 
-const APP = process.env.REACT_APP_API_URL;
 
 function SideScroll({ showbar, schedule }) {
   const [isVisible, setIsVisible] = useState(showbar);
@@ -36,7 +35,7 @@ function SideScroll({ showbar, schedule }) {
     }
     const fetchNotes = async () => {
       try {
-        const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/batches/${batchId}/schedule/${clickedDate}`);
+        const response = await axios.get(`https://website-raj.vercel.app/api/batches/${batchId}/schedule/${clickedDate}`);
         setNotes(response.data.classes);
       } catch (error) {
         console.error('Error fetching notes:', error);
@@ -83,7 +82,7 @@ function SideScroll({ showbar, schedule }) {
         classes: [newNote]
       };
       const response = await axios.post(
-        `coachify-crm-kx1p.vercel.app/api/batches/${batchId}/schedule`, 
+        `https://website-raj.vercel.app/api/batches/${batchId}/schedule`, 
         [payload]
       );
       
@@ -108,7 +107,7 @@ function SideScroll({ showbar, schedule }) {
       const classId = noteToDelete._id;
 
       try {
-        const response = await axios.delete(`coachify-crm-kx1p.vercel.app/api/batches/${batchId}/schedule/${clickedDate}/${classId}`);
+        const response = await axios.delete(`https://website-raj.vercel.app/api/batches/${batchId}/schedule/${clickedDate}/${classId}`);
         console.log('Note deleted:', response.data);
 
         const updatedNotes = notes.filter((_, index) => index !== selectedNoteIndex);
@@ -147,7 +146,7 @@ function SideScroll({ showbar, schedule }) {
         const day = String(localDate.getDate()).padStart(2, '0');
         const formattedDate = `${year}-${month}-${day}`;
   
-        const response = await axios.put(`coachify-crm-kx1p.vercel.app/api/batches/${batchId}/schedule/${formattedDate}/${classId}`, payload);
+        const response = await axios.put(`https://website-raj.vercel.app/api/batches/${batchId}/schedule/${formattedDate}/${classId}`, payload);
         console.log('Note edited:', response.data);
   
         // Update the notes array with the edited note

@@ -8,7 +8,6 @@ import logo from '../img/coachifylogo.png';
 import { useUser } from '../ContextApi/UserContext';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-const APP = process.env.REACT_APP_API_URL;
 
 function Header({ title, showNotifications }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -41,7 +40,7 @@ function Header({ title, showNotifications }) {
       }
 
       try {
-        const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/profile/${username}`, {
+        const response = await axios.get(`https://website-raj.vercel.app/api/profile/${username}`, {
           headers: {
             'Authorization': `Bearer ${token}` // Assuming you store the token in localStorage
           },

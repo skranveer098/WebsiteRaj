@@ -4,7 +4,6 @@ import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import StudentDetail from './StudentDetail';
 
-const APP = process.env.REACT_APP_API_URL;
 
 const BatchDetail = () => {
     const { batchId } = useParams();
@@ -23,7 +22,7 @@ const BatchDetail = () => {
         // Fetch batch details
         const fetchBatchDetails = async () => {
             try {
-                const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/batches/${batchId}`);
+                const response = await axios.get(`https://website-raj.vercel.app/api/batches/${batchId}`);
                 setBatch(response.data);
             } catch (error) {
                 console.error('Error fetching batch details:', error);
@@ -33,7 +32,7 @@ const BatchDetail = () => {
         // Fetch students in the batch
         const fetchStudents = async () => {
             try {
-                const response = await axios.get(`coachify-crm-kx1p.vercel.app/api/student/${batchId}/students`);
+                const response = await axios.get(`https://website-raj.vercel.app/api/student/${batchId}/students`);
                 setStudents(response.data);
             } catch (error) {
                 console.error('Error fetching students:', error);
@@ -99,7 +98,7 @@ const BatchDetail = () => {
 
     const handleDeleteStudent = async (enrollmentNo) => {
         try {
-            await axios.delete(`coachify-crm-kx1p.vercel.app/api/student/enrollmentNo/${enrollmentNo}`);
+            await axios.delete(`https://website-raj.vercel.app/api/student/enrollmentNo/${enrollmentNo}`);
             setStudents(prevStudents => prevStudents.filter(student => student.enrollmentNo !== enrollmentNo));
         } catch (error) {
             console.error('Error deleting student:', error);
@@ -114,7 +113,7 @@ const BatchDetail = () => {
 
     const handleAddStudent = async (newStudent) => {
         try {
-            const response = await axios.post(`coachify-crm-kx1p.vercel.app/api/student`, newStudent);
+            const response = await axios.post(`https://website-raj.vercel.app/api/student`, newStudent);
             const addedStudent = response.data;
             setStudents([...students, addedStudent]);
             setShowStudentDetail(false);
